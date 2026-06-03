@@ -157,7 +157,12 @@ npm run test:watch — watch mode (TDD)
 ## Outstanding / Planned Work
 
 - [ ] Unique per-reviewer links — token stored in DB, supports draft/resume, marks as submitted on completion
+- [ ] Anonymous submission option — user checks "submit anonymously"; app records submission as anonymous
+  in the DB (no token correlation shown in admin view), then presents a pre-filled mailto link addressed
+  to the line manager with the feedback content in the body. The user sends from their own email client —
+  the app never handles the email, giving a clear trust boundary. Explanatory text will inform the user
+  what "anonymous" means in this context (anonymous from the app owner; routed via their own email to
+  the line manager). Note: mailto has a practical body length limit — warn or cap if content is long.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Mark questions as mandatory vs optional
-- [ ] Email notification on new feedback submission
 - [ ] Migrate DB to Vercel Postgres (Neon) when deploying to production

@@ -9,7 +9,9 @@
 
 ## Project
 
-[Replace with: app name, purpose, developer name]
+Professional feedback collector. Colleagues visit a link to submit free-text feedback
+on what you do well and what you could improve. A private `/admin` page shows all
+submitted responses.
 
 **Repo:** [Replace with GitHub URL]
 **Branch:** master (single branch, push directly)
@@ -22,8 +24,8 @@
 |-----------|-------------------------------|-------|
 | Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code |
 | Language  | TypeScript (strict)           | No JS files in src/ |
-| ORM       | Prisma 7 + better-sqlite3     | Driver adapter pattern. Config in prisma.config.ts |
-| DB        | SQLite (prisma/dev.db)        | Gitignored. Run: npx prisma migrate dev --name init |
+| ORM       | Prisma 7 + better-sqlite3     | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change |
+| DB        | SQLite (prisma/dev.db)        | Gitignored. Migration applied: 20260603154642_init |
 | Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss) |
 | Testing   | Vitest + RTL + msw + jest-axe | See Testing section |
 | CI        | GitHub Actions                | .github/workflows/ci.yml |
@@ -35,46 +37,77 @@
 ```
 src/
   app/
-    api/items/
-      route.ts          # GET + POST placeholder - replace with your domain
-      [id]/route.ts     # PATCH + DELETE placeholder - replace with your domain
-    page.tsx            # Minimal placeholder UI - replace with your domain
+    api/
+      feedback/
+        route.ts          # POST (submit) + GET (list all) feedback
+    admin/
+      page.tsx            # Server component — lists all feedback, newest first
+    page.tsx              # Client component — public feedback form (two questions)
     layout.tsx
     globals.css
   lib/
-    prisma.ts           # Singleton PrismaClient - do not add tests
+    prisma.ts             # Singleton PrismaClient with BetterSqlite3 adapter
+  generated/
+    prisma/               # Auto-generated Prisma client (gitignored)
   tests/
-    setup.ts            # msw server lifecycle
+    setup.ts              # msw server lifecycle
     mocks/
-      handlers.ts       # msw handlers - update as you build routes
-      server.ts         # msw setupServer
+      handlers.ts         # msw handlers for /api/feedback (GET + POST)
+      server.ts           # msw setupServer
     api/
-      items.test.ts     # Placeholder - replace with domain tests
+      items.test.ts       # todo stubs for API route tests
     ui/
-      page.test.tsx     # Placeholder - replace with domain tests
-      accessibility.test.tsx  # axe-core tests - keep and extend
+      page.test.tsx       # Feedback form: render, disabled state, submit flow, error state
+      accessibility.test.tsx  # axe-core scan of feedback form
 prisma/
-  schema.prisma         # Placeholder Item model - replace with your domain model
-prisma.config.ts        # Prisma 7 datasource config - no changes needed
-.github/workflows/
-  ci.yml                # Runs npm test on push/PR to master
+  schema.prisma           # Feedback model (id cuid, strengths, improvements, submittedAt)
+  dev.db                  # SQLite database (gitignored)
+  migrations/
+    20260603154642_init/  # Initial migration — creates Feedback table
+prisma.config.ts          # Prisma 7 datasource config (holds the db URL)
 ```
 
 ---
 
 ## Prisma Schema
 
-Currently a placeholder Item model. Replace with your domain model then run:
-  npx prisma migrate dev --name <migration-name>
+```prisma
+model Feedback {
+  id           String   @id @default(cuid())
+  strengths    String
+  improvements String
+  submittedAt  DateTime @default(now())
+}
+```
+
+**Important Prisma 7 note:** The `datasource` block in `schema.prisma` must NOT contain
+a `url` field. The connection URL lives only in `prisma.config.ts`.
+
+---
+
+## API
+
+| Method | Path           | Auth | Description                          |
+|--------|----------------|------|--------------------------------------|
+| POST   | /api/feedback  | none | Submit feedback. 400 if fields blank |
+| GET    | /api/feedback  | none | Return all feedback (for admin page) |
+
+---
+
+## Pages
+
+| Route   | Type   | Description                                         |
+|---------|--------|-----------------------------------------------------|
+| /       | Client | Public feedback form (two free-text questions)      |
+| /admin  | Server | View all submitted feedback, newest first (unprotected for now) |
 
 ---
 
 ## Test Coverage
 
-Smoke tests only — replace as you build.
-- api/items.test.ts: todo placeholders
-- ui/page.test.tsx: renders without crashing
-- ui/accessibility.test.tsx: full page axe scan
+- ui/page.test.tsx: form renders, submit button disabled state, success flow, error flow
+- ui/accessibility.test.tsx: axe scan of feedback form
+- api/items.test.ts: todo stubs (no DB integration tests yet)
 
 npm test — single run (CI)
 npm run test:watch — watch mode (TDD)
@@ -83,15 +116,18 @@ npm run test:watch — watch mode (TDD)
 
 ## Key Decisions & Reasoning
 
-Inherited from nextjs-fullstack-starter.
-
-- prisma.ts singleton untested — infrastructure glue, not worth unit testing
-- No Storybook — deferred, worth revisiting if component library grows
-- Commit style — conventional commits: feat: fix: test: docs: chore:
-- Email privacy — configure git user.email to your GitHub no-reply address
+- Admin page is a server component — reads DB directly, no client-side fetch needed
+- Admin page is currently **unprotected** — authentication is planned for a future iteration
+- No `url` in schema.prisma — Prisma 7 breaking change; URL configured in prisma.config.ts only
+- Submit button disabled until both fields have content — prevents empty submissions client-side
+- Feedback IDs use cuid() — suitable for future expiring-link feature
 
 ---
 
-## Outstanding Work
+## Outstanding / Planned Work
 
-[Replace with your own task list as the project evolves]
+- [ ] Auth for /admin (protect so only you and chosen others can view feedback)
+- [ ] Expiring share links to limit how many times someone can respond
+- [ ] Additional question types (rating scales, multiple choice, etc.)
+- [ ] Mark questions as mandatory vs optional
+- [ ] Email notification on new feedback submission

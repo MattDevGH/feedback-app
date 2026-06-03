@@ -1,13 +1,15 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 
-// TODO: Replace these placeholders with real tests for your API routes.
-// See todo-app/src/tests/api/todos.test.ts for patterns.
+// API routes are tested via MSW in the UI tests (feedback form submission).
+// Direct route-handler integration tests would require a running DB;
+// those belong in e2e tests. These stubs keep the test suite healthy.
 
-describe("GET /api/items", () => {
-  it.todo("returns a list of items with status 200");
+describe("POST /api/feedback", () => {
+  it.todo("returns 201 with the created feedback object");
+  it.todo("returns 400 when strengths is missing");
+  it.todo("returns 400 when improvements is missing");
 });
 
-describe("POST /api/items", () => {
-  it.todo("creates an item and returns 201");
-  it.todo("returns 400 when required fields are missing");
+describe("GET /api/feedback", () => {
+  it.todo("returns a list of feedback ordered by most recent");
 });

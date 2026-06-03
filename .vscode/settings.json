@@ -1,0 +1,23 @@
+{
+  // Format on save for all files
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Use ESLint for JS/TS linting
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Tailwind CSS IntelliSense — recognise @apply and class attributes
+  "tailwindCSS.experimental.classRegex": [],
+  "css.validate": false,
+
+  // Prisma — format schema on save
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+
+  // TypeScript — use workspace version
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
+}

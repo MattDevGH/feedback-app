@@ -1,46 +1,44 @@
-# [Your App Name]
+# Feedback App
 
-> **Generated from [nextjs-fullstack-starter](https://github.com/MattDevGH/nextjs-fullstack-starter).**
-
-A brief description of what this app does.
-
-## Stack
-
-- **Next.js 16** — React framework with App Router and API routes
-- **TypeScript** — type safety throughout
-- **Prisma 7** — ORM with SQLite via `better-sqlite3`
-- **Tailwind CSS** — utility-first styling
-- **SQLite** — single-file database, no server required
+A simple professional feedback collector. Share a link with colleagues; they submit free-text responses to two questions. You view all responses at `/admin`.
 
 ## Getting Started
 
 ```bash
 npm install
-npx prisma migrate dev --name init
+npx prisma migrate dev --name init   # creates prisma/dev.db
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Then open [http://localhost:3000](http://localhost:3000).
+
+## Routes
+
+| Route        | Description                                      |
+|--------------|--------------------------------------------------|
+| `/`          | Public feedback form (two free-text questions)   |
+| `/admin`     | View all submitted feedback, newest first        |
+| `POST /api/feedback` | Submit feedback                        |
+| `GET /api/feedback`  | Retrieve all feedback (used by /admin) |
+
+## Tech Stack
+
+- **Next.js 16** (App Router)
+- **Prisma 7** + **better-sqlite3** (SQLite)
+- **Tailwind CSS v4**
+- **Vitest** + **React Testing Library** + **MSW** + **jest-axe**
 
 ## Testing
 
-TDD approach using Vitest, React Testing Library, msw, and jest-axe.
-
 ```bash
-npm test            # single run (CI)
-npm run test:watch  # watch mode for TDD
+npm test          # single run
+npm run test:watch  # watch mode
 ```
 
-## Working with AI assistants
+## Planned Features
 
-- **`AGENTS.md`** — rules and instructions for AI agents
-- **`AI_CONTEXT.md`** — current project state. Read at session start, update with every commit.
-
-## API
-
-| Method | Endpoint       | Description    |
-|--------|----------------|----------------|
-| GET    | /api/items     | List all items |
-| POST   | /api/items     | Create an item |
-| PATCH  | /api/items/:id | Update an item |
-| DELETE | /api/items/:id | Delete an item |
+- Auth-protected admin page
+- Expiring share links
+- Additional question types (ratings, multiple choice)
+- Mandatory vs optional questions
+- Email notifications on new submissions

@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    // TypeScript / React
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+
+    // Tailwind CSS
+    "bradlc.vscode-tailwindcss",
+
+    // Prisma
+    "Prisma.prisma"
+  ]
+}

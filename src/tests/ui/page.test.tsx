@@ -81,4 +81,35 @@ describe("Feedback form", () => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
     });
   });
+
+  it("shows error when a field exceeds the 2000 character limit", async () => {
+    const { server } = await import("../mocks/server");
+    const { http, HttpResponse } = await import("msw");
+
+    server.use(
+      http.post("/api/feedback", () =>
+        HttpResponse.json(
+          { error: "Each field must be 2000 characters or fewer." },
+          { status: 400 }
+        )
+      )
+    );
+
+    const user = userEvent.setup();
+    render(<Home />);
+
+    // Paste a 2001-character string to bypass the client-side character count
+    const overlong = "a".repeat(2001);
+    await user.click(screen.getByLabelText(/what does this person do well/i));
+    await user.paste(overlong);
+    await user.type(
+      screen.getByLabelText(/what could this person do to improve/i),
+      "Normal length"
+    );
+    await user.click(screen.getByRole("button", { name: /submit feedback/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/2000 characters/i);
+    });
+  });
 });

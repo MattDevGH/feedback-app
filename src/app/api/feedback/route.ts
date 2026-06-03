@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+const MAX_FIELD_LENGTH = 2000;
+
 // POST /api/feedback — submit new feedback
 export async function POST(request: Request) {
   let body: unknown;
@@ -20,6 +22,13 @@ export async function POST(request: Request) {
   ) {
     return NextResponse.json(
       { error: "Both 'strengths' and 'improvements' are required." },
+      { status: 400 }
+    );
+  }
+
+  if (strengths.length > MAX_FIELD_LENGTH || improvements.length > MAX_FIELD_LENGTH) {
+    return NextResponse.json(
+      { error: `Each field must be ${MAX_FIELD_LENGTH} characters or fewer.` },
       { status: 400 }
     );
   }

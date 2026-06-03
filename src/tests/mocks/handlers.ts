@@ -27,6 +27,14 @@ export const handlers = [
       );
     }
 
+    const MAX_FIELD_LENGTH = 2000;
+    if (strengths.length > MAX_FIELD_LENGTH || improvements.length > MAX_FIELD_LENGTH) {
+      return HttpResponse.json(
+        { error: `Each field must be ${MAX_FIELD_LENGTH} characters or fewer.` },
+        { status: 400 }
+      );
+    }
+
     return HttpResponse.json(
       {
         id: "clnew0001",

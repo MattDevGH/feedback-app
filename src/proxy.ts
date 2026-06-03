@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 // use case, but consider a cookie-based approach if logs are a concern.
 const PROTECTED_PATHS = ["/admin", "/api/feedback"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   const isProtected = PROTECTED_PATHS.some(

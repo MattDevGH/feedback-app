@@ -24,7 +24,7 @@ feedback on what you do well and what you could improve. A private `/admin` page
 |-----------|-------------------------------|-------|
 | Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code |
 | Language  | TypeScript (strict)           | No JS files in src/ |
-| ORM       | Prisma 7 + better-sqlite3     | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel builds |
+| ORM       | Prisma 7 + better-sqlite3     | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
 | DB        | SQLite (prisma/dev.db)        | Gitignored. Migration applied: 20260603154642_init |
 | Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss) |
 | Testing   | Vitest + RTL + msw + jest-axe | See Testing section |

@@ -163,7 +163,10 @@ update `.env.local` and the Vercel env var.
 
 ## Test Coverage
 
-- ui/page.test.tsx: form renders, disabled state, success flow, error flow, overlength error
+**Approach: TDD**
+Write tests before or alongside implementation. For API routes, validation logic, and business rules, write the failing test first then implement. UI tests are written alongside since the component shape drives what's testable. Do not write implementation first and retrofit tests.
+
+- ui/page.test.tsx: form renders, disabled state, success flow, error flow, overlength error, section completion indicators
 - ui/accessibility.test.tsx: axe scan of feedback form
 - security/headers.test.ts: security header config
 - security/middleware.test.ts: admin key protection (valid, invalid, missing, sub-paths)

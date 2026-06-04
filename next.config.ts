@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const securityHeaders = [
   // Prevent browsers from MIME-sniffing the content type
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -16,12 +18,17 @@ const securityHeaders = [
   // - no external scripts, styles, images, or fonts
   // - no inline event handlers (React doesn't need them)
   // - form submissions stay on the same origin
+  //
+  // In development, React needs eval() for error reporting and stack traces.
+  // In production, eval() is not needed and is blocked for security.
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'", // 'unsafe-inline' required by Next.js inline bootstrap scripts
-      "style-src 'self' 'unsafe-inline'",  // 'unsafe-inline' required by Tailwind CSS-in-JS
+      isDev
+        ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+        : "script-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data:",
       "font-src 'self'",
       "connect-src 'self'",

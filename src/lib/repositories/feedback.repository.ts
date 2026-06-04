@@ -1,22 +1,31 @@
-// The shared Feedback type used across the application.
-// Matches the shape Prisma returns — when swapping implementations,
-// all repositories must return this same shape.
-export type Feedback = {
+// Domain types for feedback submissions.
+// All repository implementations must return these shapes.
+
+export type FeedbackResponse = {
   id: string;
-  strengths: string;
-  improvements: string;
-  submittedAt: Date;
+  questionKey: string;
+  value: string;
 };
 
-export type CreateFeedbackData = {
-  strengths: string;
-  improvements: string;
+export type FeedbackSubmission = {
+  id: string;
+  submittedAt: Date;
+  responses: FeedbackResponse[];
+};
+
+// A response to a single question within a submission.
+export type CreateResponseData = {
+  questionKey: string;
+  value: string;
+};
+
+export type CreateSubmissionData = {
+  responses: CreateResponseData[];
 };
 
 // The contract that all persistence implementations must satisfy.
-// Application code depends only on this interface, never on a
-// concrete implementation directly.
+// Application code depends only on this interface.
 export interface FeedbackRepository {
-  create(data: CreateFeedbackData): Promise<Feedback>;
-  findAll(): Promise<Feedback[]>;
+  create(data: CreateSubmissionData): Promise<FeedbackSubmission>;
+  findAll(): Promise<FeedbackSubmission[]>;
 }

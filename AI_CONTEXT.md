@@ -51,10 +51,11 @@ src/
   lib/
     prisma.ts             # Singleton PrismaClient with BetterSqlite3 adapter
     repositories/
-      feedback.repository.ts         # FeedbackRepository interface + Feedback/CreateFeedbackData types
+      feedback.repository.ts         # FeedbackRepository interface + FeedbackSubmission/FeedbackResponse types
       prisma-feedback.repository.ts  # Prisma/SQLite implementation
       memory-feedback.repository.ts  # In-memory implementation (used in tests)
       index.ts                       # Factory: getFeedbackRepository() — swap implementations here
+    questions.config.ts              # Static question bank (keys, categories, mandatory flags, display order)
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
   tests/
@@ -85,25 +86,52 @@ prisma.config.ts          # Prisma 7 datasource config (holds the db URL)
 ## Prisma Schema
 
 ```prisma
-model Feedback {
-  id           String   @id @default(cuid())
-  strengths    String
-  improvements String
-  submittedAt  DateTime @default(now())
+// A single submission from one reviewer
+model FeedbackSubmission {
+  id          String             @id @default(cuid())
+  submittedAt DateTime           @default(now())
+  responses   FeedbackResponse[]
+}
+
+// One response per question answered within a submission.
+// questionKey references a key in src/lib/questions.config.ts
+model FeedbackResponse {
+  id           String             @id @default(cuid())
+  submissionId String
+  submission   FeedbackSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  questionKey  String
+  value        String
 }
 ```
 
-**Important Prisma 7 note:** The `datasource` block in `schema.prisma` must NOT contain
-a `url` field. The connection URL lives only in `prisma.config.ts`.
+## Question Config
+
+Questions live in `src/lib/questions.config.ts` — edit this file to add, remove, or reword questions.
+No other files need to change when questions are updated.
+
+Each question has:
+- `key` — stable identifier stored in the DB (e.g. `"praise-1"`)
+- `category` — `"praise"` | `"criticism"` | `"suggestion"` (drives colour-coding)
+- `text` — displayed to the user
+- `mandatory` — if true, must be answered for the section to be complete
+- `displayOrder` — controls render order in the UI
+
+**Section completion rule:**
+- If mandatory questions exist in a section → all must be answered
+- If no mandatory questions exist → at least one must be answered
+
+Current questions: praise-1 (mandatory), praise-2, criticism-1 (mandatory), criticism-2, suggestion-1 (mandatory), suggestion-2
+
+---
 
 ---
 
 ## API
 
-| Method | Path          | Auth       | Description                           |
-|--------|---------------|------------|---------------------------------------|
-| POST   | /api/feedback | none       | Submit feedback. 400 if fields blank or >2000 chars |
-| GET    | /api/feedback | admin key  | Return all feedback (used by /admin)  |
+| Method | Path          | Auth       | Description                                         |
+|--------|---------------|------------|-----------------------------------------------------|
+| POST   | /api/feedback | none       | Submit feedback. Validates section completion rules |
+| GET    | /api/feedback | admin key  | Return all submissions with responses               |
 
 ---
 

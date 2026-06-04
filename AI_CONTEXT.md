@@ -50,6 +50,11 @@ src/
   proxy.ts                # Protects /admin and GET /api/feedback with ADMIN_SECRET_KEY (Next.js 16: middleware renamed to proxy)
   lib/
     prisma.ts             # Singleton PrismaClient with BetterSqlite3 adapter
+    repositories/
+      feedback.repository.ts         # FeedbackRepository interface + Feedback/CreateFeedbackData types
+      prisma-feedback.repository.ts  # Prisma/SQLite implementation
+      memory-feedback.repository.ts  # In-memory implementation (used in tests)
+      index.ts                       # Factory: getFeedbackRepository() — swap implementations here
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
   tests/
@@ -58,7 +63,7 @@ src/
       handlers.ts         # msw handlers for /api/feedback (GET + POST)
       server.ts           # msw setupServer
     api/
-      items.test.ts       # todo stubs for API route tests
+      items.test.ts       # Route handler tests using MemoryFeedbackRepository (no DB required)
     ui/
       page.test.tsx       # Feedback form: render, disabled state, submit flow, error state
       accessibility.test.tsx  # axe-core scan of feedback form
@@ -134,7 +139,7 @@ update `.env.local` and the Vercel env var.
 - ui/accessibility.test.tsx: axe scan of feedback form
 - security/headers.test.ts: security header config
 - security/middleware.test.ts: admin key protection (valid, invalid, missing, sub-paths)
-- api/items.test.ts: todo stubs (no DB integration tests yet)
+- api/items.test.ts: route handler tests (POST + GET) using MemoryFeedbackRepository — no DB required
 
 npm test — single run (CI)
 npm run test:watch — watch mode (TDD)
@@ -143,10 +148,13 @@ npm run test:watch — watch mode (TDD)
 
 ## Key Decisions & Reasoning
 
+- Repository pattern — application logic depends on `FeedbackRepository` interface, not Prisma directly. Swap `getFeedbackRepository()` in `src/lib/repositories/index.ts` to change persistence backend
+- `MemoryFeedbackRepository` used in tests — no database required, route handlers fully testable
+- To add a new persistence backend: implement `FeedbackRepository`, update the factory in `index.ts`
 - Admin protected by secret key in query string — simple, no external auth dependency
 - Query string keys can appear in server logs — acceptable at this scale; noted in code
 - Middleware fails closed — if ADMIN_SECRET_KEY env var is unset, access is denied
-- Timing-safe string comparison in middleware — prevents key enumeration attacks
+- Timing-safe string comparison in proxy — prevents key enumeration attacks
 - Admin page is a server component — reads DB directly, no client-side fetch needed
 - No `url` in schema.prisma — Prisma 7 breaking change; URL configured in prisma.config.ts only
 - Submit button disabled until both fields have content — prevents empty submissions client-side

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { getFeedbackRepository } from "@/lib/repositories";
 
 const MAX_FIELD_LENGTH = 2000;
 
@@ -33,11 +33,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const feedback = await prisma.feedback.create({
-    data: {
-      strengths: strengths.trim(),
-      improvements: improvements.trim(),
-    },
+  const repo = getFeedbackRepository();
+  const feedback = await repo.create({
+    strengths: strengths.trim(),
+    improvements: improvements.trim(),
   });
 
   return NextResponse.json(feedback, { status: 201 });
@@ -45,8 +44,7 @@ export async function POST(request: Request) {
 
 // GET /api/feedback — retrieve all feedback (admin use)
 export async function GET() {
-  const feedback = await prisma.feedback.findMany({
-    orderBy: { submittedAt: "desc" },
-  });
+  const repo = getFeedbackRepository();
+  const feedback = await repo.findAll();
   return NextResponse.json(feedback);
 }

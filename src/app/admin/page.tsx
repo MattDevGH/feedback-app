@@ -1,12 +1,11 @@
-import { prisma } from "@/lib/prisma";
+import { getFeedbackRepository } from "@/lib/repositories";
 
 // Force dynamic rendering so feedback is always fresh
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-  const feedback = await prisma.feedback.findMany({
-    orderBy: { submittedAt: "desc" },
-  });
+  const repo = getFeedbackRepository();
+  const feedback = await repo.findAll();
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-12">

@@ -49,7 +49,9 @@ export default async function AdminPage() {
                     const cfg = CATEGORY_CONFIG[category];
                     return (
                       <li key={response.id} className={`border-l-4 ${cfg.borderColor} pl-4`}>
-                        <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${cfg.color}`}>
+                        <p
+                          className={`text-xs font-semibold uppercase tracking-wide mb-1 ${cfg.color}`}
+                        >
                           {cfg.label}
                         </p>
                         <p className="text-xs text-gray-400 mb-1">

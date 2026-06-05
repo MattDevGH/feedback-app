@@ -17,13 +17,13 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Routes
 
-| Route         | Description                                            |
-|---------------|--------------------------------------------------------|
-| `/`           | Public feedback form (two free-text questions)         |
-| `/admin?key=` | View all submitted feedback (requires admin key)       |
-| `/unauthorized` | Shown when admin key is missing or wrong             |
-| `POST /api/feedback` | Submit feedback (public)                      |
-| `GET /api/feedback?key=` | Retrieve all feedback (requires admin key) |
+| Route                    | Description                                      |
+| ------------------------ | ------------------------------------------------ |
+| `/`                      | Public feedback form (two free-text questions)   |
+| `/admin?key=`            | View all submitted feedback (requires admin key) |
+| `/unauthorized`          | Shown when admin key is missing or wrong         |
+| `POST /api/feedback`     | Submit feedback (public)                         |
+| `GET /api/feedback?key=` | Retrieve all feedback (requires admin key)       |
 
 ## Admin Access
 
@@ -34,6 +34,7 @@ ADMIN_SECRET_KEY=your-secret-here
 ```
 
 Generate a key with:
+
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```

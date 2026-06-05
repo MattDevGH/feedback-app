@@ -5,17 +5,14 @@ import Home from "@/app/page";
 
 // Helper: fill all mandatory questions to make the form submittable
 async function fillMandatoryQuestions(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(
-    screen.getByLabelText(/what does this person do well/i),
-    "Great communicator"
-  );
+  await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");
   await user.type(
     screen.getByLabelText(/what does this person struggle with/i),
-    "Slow to make decisions"
+    "Slow to make decisions",
   );
   await user.type(
     screen.getByLabelText(/what should this person start doing/i),
-    "Seek feedback more regularly"
+    "Seek feedback more regularly",
   );
 }
 
@@ -39,10 +36,7 @@ describe("Feedback form", () => {
     const user = userEvent.setup();
     render(<Home />);
 
-    await user.type(
-      screen.getByLabelText(/what does this person do well/i),
-      "Good listener"
-    );
+    await user.type(screen.getByLabelText(/what does this person do well/i), "Good listener");
     // criticism and suggestion still empty
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeDisabled();
   });
@@ -71,8 +65,8 @@ describe("Feedback form", () => {
 
     server.use(
       http.post("/api/feedback", () =>
-        HttpResponse.json({ error: "Submission failed. Please try again." }, { status: 500 })
-      )
+        HttpResponse.json({ error: "Submission failed. Please try again." }, { status: 500 }),
+      ),
     );
 
     const user = userEvent.setup();
@@ -92,10 +86,7 @@ describe("Feedback form", () => {
     // Initially all sections incomplete
     expect(screen.getByLabelText(/praise: incomplete/i)).toBeInTheDocument();
 
-    await user.type(
-      screen.getByLabelText(/what does this person do well/i),
-      "Great communicator"
-    );
+    await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");
 
     await waitFor(() => {
       expect(screen.getByLabelText(/praise: complete/i)).toBeInTheDocument();

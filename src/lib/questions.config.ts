@@ -75,7 +75,10 @@ export const QUESTIONS: Question[] = [
 ];
 
 // Visual config per category — used by the UI for colour-coding.
-export const CATEGORY_CONFIG: Record<Category, { label: string; color: string; borderColor: string; badgeColor: string }> = {
+export const CATEGORY_CONFIG: Record<
+  Category,
+  { label: string; color: string; borderColor: string; badgeColor: string }
+> = {
   praise: {
     label: "Praise",
     color: "text-emerald-700",
@@ -103,10 +106,7 @@ export const CATEGORIES: Category[] = ["praise", "criticism", "suggestion"];
 // A section is complete when:
 //   - if mandatory questions exist: all mandatory questions have a non-empty answer
 //   - if no mandatory questions exist: at least one question has a non-empty answer
-export function isSectionComplete(
-  category: Category,
-  answers: Record<string, string>
-): boolean {
+export function isSectionComplete(category: Category, answers: Record<string, string>): boolean {
   const sectionQuestions = QUESTIONS.filter((q) => q.category === category);
   const mandatoryQuestions = sectionQuestions.filter((q) => q.mandatory);
 

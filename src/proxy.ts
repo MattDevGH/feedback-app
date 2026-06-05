@@ -9,7 +9,7 @@ export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   const isProtected = PROTECTED_PATHS.some(
-    (path) => pathname === path || pathname.startsWith(path + "/")
+    (path) => pathname === path || pathname.startsWith(path + "/"),
   );
 
   if (!isProtected) return NextResponse.next();
@@ -34,13 +34,15 @@ export function proxy(request: NextRequest) {
 }
 
 // Constant-time string comparison to prevent timing-based key enumeration.
-// We can't use crypto.timingSafeEqual in the Edge runtime (no Buffer), so
-// we implement it manually by comparing every character regardless of mismatch.
+// Pads the shorter string to prevent leaking the key length.
 function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  const maxLen = Math.max(a.length, b.length);
+  const paddedA = a.padEnd(maxLen, "\0");
+  const paddedB = b.padEnd(maxLen, "\0");
+
+  let result = a.length ^ b.length; // non-zero if lengths differ
+  for (let i = 0; i < maxLen; i++) {
+    result |= paddedA.charCodeAt(i) ^ paddedB.charCodeAt(i);
   }
   return result === 0;
 }

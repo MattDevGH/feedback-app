@@ -43,13 +43,15 @@ describe("POST /api/feedback", () => {
   });
 
   it("trims whitespace from response values", async () => {
-    const res = await POST(makeRequest({
-      responses: [
-        { questionKey: "praise-1", value: "  Great communicator  " },
-        { questionKey: "criticism-1", value: "  Delegates poorly  " },
-        { questionKey: "suggestion-1", value: "  Seek more feedback  " },
-      ],
-    }));
+    const res = await POST(
+      makeRequest({
+        responses: [
+          { questionKey: "praise-1", value: "  Great communicator  " },
+          { questionKey: "criticism-1", value: "  Delegates poorly  " },
+          { questionKey: "suggestion-1", value: "  Seek more feedback  " },
+        ],
+      }),
+    );
     const body = await res.json();
 
     expect(res.status).toBe(201);
@@ -67,56 +69,65 @@ describe("POST /api/feedback", () => {
   });
 
   it("returns 400 for an unknown questionKey", async () => {
-    const res = await POST(makeRequest({
-      responses: [
-        ...validResponses,
-        { questionKey: "not-a-real-key", value: "something" },
-      ],
-    }));
+    const res = await POST(
+      makeRequest({
+        responses: [...validResponses, { questionKey: "not-a-real-key", value: "something" }],
+      }),
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 400 when a value is blank whitespace", async () => {
-    const res = await POST(makeRequest({
-      responses: [
-        { questionKey: "praise-1", value: "   " },
-        { questionKey: "criticism-1", value: "Fine" },
-        { questionKey: "suggestion-1", value: "Fine" },
-      ],
-    }));
+    const res = await POST(
+      makeRequest({
+        responses: [
+          { questionKey: "praise-1", value: "   " },
+          { questionKey: "criticism-1", value: "Fine" },
+          { questionKey: "suggestion-1", value: "Fine" },
+        ],
+      }),
+    );
     expect(res.status).toBe(400);
   });
 
   it("returns 400 when a value exceeds 2000 characters", async () => {
-    const res = await POST(makeRequest({
-      responses: [
-        { questionKey: "praise-1", value: "a".repeat(2001) },
-        { questionKey: "criticism-1", value: "Fine" },
-        { questionKey: "suggestion-1", value: "Fine" },
-      ],
-    }));
+    const res = await POST(
+      makeRequest({
+        responses: [
+          { questionKey: "praise-1", value: "a".repeat(2001) },
+          { questionKey: "criticism-1", value: "Fine" },
+          { questionKey: "suggestion-1", value: "Fine" },
+        ],
+      }),
+    );
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body.error).toMatch(/2000/);
   });
 
   it("returns 400 when a mandatory section has no answer", async () => {
-    const res = await POST(makeRequest({
-      responses: [
-        // missing praise-1 (mandatory)
-        { questionKey: "criticism-1", value: "Fine" },
-        { questionKey: "suggestion-1", value: "Fine" },
-      ],
-    }));
+    const res = await POST(
+      makeRequest({
+        responses: [
+          // missing praise-1 (mandatory)
+          { questionKey: "criticism-1", value: "Fine" },
+          { questionKey: "suggestion-1", value: "Fine" },
+        ],
+      }),
+    );
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body.incompleteSections).toContain("praise");
   });
 
   it("returns 400 when all three sections are incomplete", async () => {
-    const res = await POST(makeRequest({ responses: [
-      { questionKey: "praise-2", value: "Something optional" }, // only optional praise question
-    ]}));
+    const res = await POST(
+      makeRequest({
+        responses: [
+          { questionKey: "praise-2", value: "Something optional" }, // only optional praise question
+        ],
+      }),
+    );
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body.incompleteSections).toHaveLength(3);

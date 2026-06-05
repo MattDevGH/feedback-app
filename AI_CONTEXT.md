@@ -59,27 +59,36 @@ src/
   app/
     api/
       feedback/
-        route.ts          # POST (submit, public) + GET (list all, key-protected)
+        route.ts          # POST (submit, token-validated) + GET (list all, key-protected)
+      tokens/
+        route.ts          # POST (create token) + GET (list tokens) — admin-protected
     admin/
       page.tsx            # Server component — lists all feedback (key-protected)
       error.tsx           # Error boundary for admin page
+    f/
+      [token]/
+        page.tsx          # Server component — validates token, renders form or status
+        FeedbackForm.tsx  # Client component — the actual feedback form
     hooks/
-      useFeedbackForm.ts  # Custom hook — form state, submission, validation
+      useFeedbackForm.ts  # Custom hook — form state, draft persistence, submission
     error.tsx             # Root error boundary
     unauthorized/
       page.tsx            # Shown when admin key is missing or wrong
-    page.tsx              # Client component — feedback form (presentational)
+    page.tsx              # Landing page (directs to invite link)
     layout.tsx
     globals.css
-  proxy.ts                # Protects /admin and GET /api/feedback with ADMIN_SECRET_KEY
+  proxy.ts                # Protects /admin, /api/tokens, GET /api/feedback
   lib/
     prisma.ts             # Singleton PrismaClient with Neon adapter
     validation.ts         # Zod schema + validateSubmission() for API input
     repositories/
       feedback.repository.ts         # FeedbackRepository interface + types
-      prisma-feedback.repository.ts  # Prisma/Neon implementation
+      token.repository.ts            # TokenRepository interface + types
+      prisma-feedback.repository.ts  # Prisma/Neon implementation (feedback)
+      prisma-token.repository.ts     # Prisma/Neon implementation (tokens)
       memory-feedback.repository.ts  # In-memory implementation (tests)
-      index.ts                       # Factory: getFeedbackRepository()
+      memory-token.repository.ts     # In-memory implementation (tests)
+      index.ts                       # Factory: getFeedbackRepository(), getTokenRepository()
     questions.config.ts              # Static question bank + section completion logic
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
@@ -89,24 +98,27 @@ src/
       handlers.ts         # msw handlers — reuses validateSubmission()
       server.ts           # msw setupServer
     api/
-      feedback.test.ts    # Route handler tests using MemoryFeedbackRepository
+      feedback.test.ts    # Feedback submission route tests
+      tokens.test.ts      # Token creation/listing route tests
     ui/
-      page.test.tsx       # Feedback form UI tests
+      page.test.tsx       # Feedback form + landing page UI tests
       accessibility.test.tsx  # axe-core scan
     security/
       headers.test.ts     # Security header config tests
       middleware.test.ts  # Admin key protection tests
 prisma/
-  schema.prisma           # FeedbackSubmission + FeedbackResponse models (PostgreSQL)
-  migrations/
-    20260605160456_init/  # Initial Postgres migration
+  schema.prisma           # ReviewToken + FeedbackSubmission + FeedbackResponse (PostgreSQL)
+  migrations/             # Postgres migrations
 prisma.config.ts          # Prisma CLI config (datasource URL)
 .env.local                # ADMIN_SECRET_KEY + POSTGRES_PRISMA_URL (gitignored)
 .env.example              # Template (committed, no real values)
-.prettierrc               # Prettier config
-.prettierignore           # Prettier ignore patterns
-.husky/pre-commit         # Runs lint-staged before each commit
 ```
+
+.prettierrc # Prettier config
+.prettierignore # Prettier ignore patterns
+.husky/pre-commit # Runs lint-staged before each commit
+
+````
 
 ---
 
@@ -126,7 +138,7 @@ model FeedbackResponse {
   questionKey  String
   value        String
 }
-```
+````
 
 ---
 
@@ -204,8 +216,9 @@ Set `POSTGRES_PRISMA_URL=postgresql://postgres:local@localhost:5432/postgres` an
 
 Write tests before or alongside implementation. For API routes, validation logic, and business rules, write the failing test first then implement. UI tests are written alongside since the component shape drives what's testable. Do not write implementation first and retrofit tests.
 
-- api/feedback.test.ts: route handler tests (POST + GET) via MemoryFeedbackRepository
-- ui/page.test.tsx: form renders, disabled state, success flow, error flow, section indicators
+- api/feedback.test.ts: feedback submission route tests (token validation, section completion, edge cases)
+- api/tokens.test.ts: token creation and listing route tests
+- ui/page.test.tsx: landing page + feedback form UI tests (render, disabled state, success, error, section indicators)
 - ui/accessibility.test.tsx: axe scan of feedback form
 - security/headers.test.ts: security header config
 - security/middleware.test.ts: admin key protection

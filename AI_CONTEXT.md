@@ -1,4 +1,5 @@
 # AI Session Context
+
 # AI Session Context
 
 > Read this at the start of every session to resume without re-discovery.
@@ -21,15 +22,15 @@ feedback on what you do well and what you could improve. A private `/admin` page
 
 ## Stack
 
-| Layer     | Choice                        | Notes |
-|-----------|-------------------------------|-------|
-| Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code |
-| Language  | TypeScript (strict)           | No JS files in src/ |
+| Layer     | Choice                        | Notes                                                                                                                                                                                                                |
+| --------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code                                                                                                                                                  |
+| Language  | TypeScript (strict)           | No JS files in src/                                                                                                                                                                                                  |
 | ORM       | Prisma 7 + Neon serverless    | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
-| DB        | PostgreSQL (Neon)             | Hosted on Neon via Vercel integration. Same DB for local dev and production. For offline dev, use a local Postgres container (see below). |
-| Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss) |
-| Testing   | Vitest + RTL + msw + jest-axe | See Testing section |
-| CI        | GitHub Actions                | .github/workflows/ci.yml |
+| DB        | PostgreSQL (Neon)             | Hosted on Neon via Vercel integration. Same DB for local dev and production. For offline dev, use a local Postgres container (see below).                                                                            |
+| Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss)                                                                                                                                                                                |
+| Testing   | Vitest + RTL + msw + jest-axe | See Testing section                                                                                                                                                                                                  |
+| CI        | GitHub Actions                | .github/workflows/ci.yml                                                                                                                                                                                             |
 
 ---
 
@@ -111,6 +112,7 @@ Questions live in `src/lib/questions.config.ts` — edit this file to add, remov
 No other files need to change when questions are updated.
 
 Each question has:
+
 - `key` — stable identifier stored in the DB (e.g. `"praise-1"`)
 - `category` — `"praise"` | `"criticism"` | `"suggestion"` (drives colour-coding)
 - `text` — displayed to the user
@@ -118,6 +120,7 @@ Each question has:
 - `displayOrder` — controls render order in the UI
 
 **Section completion rule:**
+
 - If mandatory questions exist in a section → all must be answered
 - If no mandatory questions exist → at least one must be answered
 
@@ -129,20 +132,20 @@ Current questions: praise-1 (mandatory), praise-2, criticism-1 (mandatory), crit
 
 ## API
 
-| Method | Path          | Auth       | Description                                         |
-|--------|---------------|------------|-----------------------------------------------------|
-| POST   | /api/feedback | none       | Submit feedback. Validates section completion rules |
-| GET    | /api/feedback | admin key  | Return all submissions with responses               |
+| Method | Path          | Auth      | Description                                         |
+| ------ | ------------- | --------- | --------------------------------------------------- |
+| POST   | /api/feedback | none      | Submit feedback. Validates section completion rules |
+| GET    | /api/feedback | admin key | Return all submissions with responses               |
 
 ---
 
 ## Pages
 
-| Route         | Type   | Description                                              |
-|---------------|--------|----------------------------------------------------------|
-| /             | Client | Public feedback form (two free-text questions)           |
+| Route         | Type   | Description                                               |
+| ------------- | ------ | --------------------------------------------------------- |
+| /             | Client | Public feedback form (two free-text questions)            |
 | /admin        | Server | View all submitted feedback, newest first (key-protected) |
-| /unauthorized | Server | Shown when admin key is missing or incorrect             |
+| /unauthorized | Server | Shown when admin key is missing or incorrect              |
 
 ---
 
@@ -167,13 +170,17 @@ update `.env.local` and the Vercel env var.
 Local dev connects to the same Neon Postgres database as production via `POSTGRES_PRISMA_URL` in `.env.local`.
 
 **For fully offline development** (no internet required), spin up a local Postgres container instead:
+
 ```bash
 docker run -p 5432:5432 -e POSTGRES_PASSWORD=local postgres:16
 ```
+
 Then set in `.env.local`:
+
 ```
 POSTGRES_PRISMA_URL=postgresql://postgres:local@localhost:5432/postgres
 ```
+
 And apply migrations: `npx prisma migrate deploy`
 
 **Do NOT reintroduce SQLite** — dual-provider schemas cause migration conflicts with Prisma 7.
@@ -218,11 +225,11 @@ npm run test:watch — watch mode (TDD)
 
 - [ ] Unique per-reviewer links — token stored in DB, supports draft/resume, marks as submitted on completion
 - [ ] Anonymous submission option — user checks "submit anonymously"; app records submission as anonymous
-  in the DB (no token correlation shown in admin view), then presents a pre-filled mailto link addressed
-  to the line manager with the feedback content in the body. The user sends from their own email client —
-  the app never handles the email, giving a clear trust boundary. Explanatory text will inform the user
-  what "anonymous" means in this context (anonymous from the app owner; routed via their own email to
-  the line manager). Note: mailto has a practical body length limit — warn or cap if content is long.
+      in the DB (no token correlation shown in admin view), then presents a pre-filled mailto link addressed
+      to the line manager with the feedback content in the body. The user sends from their own email client —
+      the app never handles the email, giving a clear trust boundary. Explanatory text will inform the user
+      what "anonymous" means in this context (anonymous from the app owner; routed via their own email to
+      the line manager). Note: mailto has a practical body length limit — warn or cap if content is long.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Mark questions as mandatory vs optional
-- [ ] Migrate DB to Vercel Postgres (Neon) when deploying to production
+- [x] Migrate DB to Vercel Postgres (Neon) when deploying to production

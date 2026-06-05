@@ -19,7 +19,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 | Route                    | Description                                      |
 | ------------------------ | ------------------------------------------------ |
-| `/`                      | Public feedback form (6 questions, 3 categories) |
+| `/`                      | Public feedback form (9 questions, 3 categories) |
 | `/admin?key=`            | View all submitted feedback (requires admin key) |
 | `/unauthorized`          | Shown when admin key is missing or wrong         |
 | `POST /api/feedback`     | Submit feedback (public, validated by Zod)       |

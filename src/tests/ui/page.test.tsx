@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import Home from "@/app/page";
+import FeedbackForm from "@/app/f/[token]/FeedbackForm";
+import LandingPage from "@/app/page";
 
 // Helper: fill all mandatory questions to make the form submittable
 async function fillMandatoryQuestions(user: ReturnType<typeof userEvent.setup>) {
@@ -16,18 +17,22 @@ async function fillMandatoryQuestions(user: ReturnType<typeof userEvent.setup>) 
   );
 }
 
+describe("Landing page", () => {
+  it("shows an invite-required message", () => {
+    render(<LandingPage />);
+    expect(screen.getByText(/you need an invite link/i)).toBeInTheDocument();
+  });
+});
+
 describe("Feedback form", () => {
   it("renders all nine questions", () => {
-    render(<Home />);
-    // Continue (praise)
+    render(<FeedbackForm token="test-token-123" />);
     expect(screen.getByLabelText(/what does this person do well/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/describe a specific example/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/what should this person continue doing/i)).toBeInTheDocument();
-    // Stop (criticism)
     expect(screen.getByLabelText(/what does this person struggle with/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/handled things better/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/stop doing or do less of/i)).toBeInTheDocument();
-    // Start (suggestion)
     expect(
       screen.getByLabelText(/what should this person start doing or do more of/i),
     ).toBeInTheDocument();
@@ -36,13 +41,13 @@ describe("Feedback form", () => {
   });
 
   it("submit button is disabled when form is empty", () => {
-    render(<Home />);
+    render(<FeedbackForm token="test-token-123" />);
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeDisabled();
   });
 
   it("submit button remains disabled when only some mandatory questions are answered", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    render(<FeedbackForm token="test-token-123" />);
 
     await user.type(screen.getByLabelText(/what does this person do well/i), "Good listener");
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeDisabled();
@@ -50,14 +55,14 @@ describe("Feedback form", () => {
 
   it("submit button enables once all mandatory questions are answered", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    render(<FeedbackForm token="test-token-123" />);
     await fillMandatoryQuestions(user);
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeEnabled();
   });
 
   it("shows thank-you message after successful submission", async () => {
     const user = userEvent.setup();
-    render(<Home />);
+    render(<FeedbackForm token="test-token-123" />);
     await fillMandatoryQuestions(user);
     await user.click(screen.getByRole("button", { name: /submit feedback/i }));
 
@@ -72,12 +77,12 @@ describe("Feedback form", () => {
 
     server.use(
       http.post("/api/feedback", () =>
-        HttpResponse.json({ error: "Submission failed. Please try again." }, { status: 500 }),
+        HttpResponse.json({ error: "Submission failed." }, { status: 500 }),
       ),
     );
 
     const user = userEvent.setup();
-    render(<Home />);
+    render(<FeedbackForm token="test-token-123" />);
     await fillMandatoryQuestions(user);
     await user.click(screen.getByRole("button", { name: /submit feedback/i }));
 
@@ -87,10 +92,10 @@ describe("Feedback form", () => {
   });
 
   it("section completion indicators update as questions are filled", async () => {
+    localStorage.clear();
     const user = userEvent.setup();
-    render(<Home />);
+    render(<FeedbackForm token="fresh-token-no-draft" />);
 
-    // Initially all sections show "Continue: incomplete"
     expect(screen.getByLabelText(/continue: incomplete/i)).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");

@@ -75,4 +75,3 @@ Pre-commit hook runs lint-staged automatically.
 - Unique per-reviewer links (draft/resume support, one submission per person)
 - Anonymous submission option (mailto link to line manager)
 - Additional question types (ratings, multiple choice)
-- Interleaved colour-coded question UI

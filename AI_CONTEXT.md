@@ -148,20 +148,23 @@ User-facing labels use **stop/start/continue** framing (not praise/criticism/sug
 
 ## API
 
-| Method | Path          | Auth      | Description                                        |
-| ------ | ------------- | --------- | -------------------------------------------------- |
-| POST   | /api/feedback | none      | Submit feedback. Validated by Zod + section rules. |
-| GET    | /api/feedback | admin key | Return all submissions with responses.             |
+| Method | Path          | Auth      | Description                                                  |
+| ------ | ------------- | --------- | ------------------------------------------------------------ |
+| POST   | /api/feedback | token     | Submit feedback. Requires valid token + Zod + section rules. |
+| GET    | /api/feedback | admin key | Return all submissions with responses.                       |
+| POST   | /api/tokens   | admin key | Create a new review token (name + optional expiry).          |
+| GET    | /api/tokens   | admin key | List all tokens with their status.                           |
 
 ---
 
 ## Pages
 
-| Route         | Type   | Description                                              |
-| ------------- | ------ | -------------------------------------------------------- |
-| /             | Client | Feedback form (presentational, logic in useFeedbackForm) |
-| /admin        | Server | View all submitted feedback (key-protected)              |
-| /unauthorized | Server | Shown when admin key is missing or incorrect             |
+| Route         | Type   | Description                                                 |
+| ------------- | ------ | ----------------------------------------------------------- |
+| /             | Server | Landing page — directs users to use their invite link       |
+| /f/[token]    | Server | Token-validated feedback form (draft saved to localStorage) |
+| /admin        | Server | View all submitted feedback (key-protected)                 |
+| /unauthorized | Server | Shown when admin key is missing or incorrect                |
 
 ---
 
@@ -230,8 +233,8 @@ Write tests before or alongside implementation. For API routes, validation logic
 
 ## Outstanding / Planned Work
 
-- [ ] Unique per-reviewer links — token stored in DB, supports draft/resume, marks as submitted on completion
 - [ ] Anonymous submission option — "submit anonymously" checkbox; presents a mailto link to line manager with feedback content pre-filled. App records submission as anonymous (no token correlation in admin view). Explanatory text describes what "anonymous" means in this context.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
-- [ ] Interleaved colour-coded question UI (questions in any order, colour indicates category)
-- [x] Migrate DB to Vercel Postgres (Neon) when deploying to production
+- [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)
+- [ ] Request an invite — public landing page allows visitors to submit their email to request access. Admin approves/rejects requests and issues tokens.
+- [ ] Admin UI for token management — create tokens, view status, copy invite links

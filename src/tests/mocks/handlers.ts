@@ -1,6 +1,9 @@
 import { http, HttpResponse } from "msw";
 import { validateSubmission } from "@/lib/validation";
 
+const VALID_TOKENS = new Set(["test-token-123"]);
+const usedTokens = new Set<string>();
+
 export const handlers = [
   http.post("/api/feedback", async ({ request }) => {
     const body = await request.json();
@@ -12,6 +15,16 @@ export const handlers = [
         { status: 400 },
       );
     }
+
+    if (!VALID_TOKENS.has(result.data.token)) {
+      return HttpResponse.json({ error: "Invalid or unknown token." }, { status: 403 });
+    }
+
+    if (usedTokens.has(result.data.token)) {
+      return HttpResponse.json({ error: "This link has already been used." }, { status: 409 });
+    }
+
+    usedTokens.add(result.data.token);
 
     return HttpResponse.json(
       {
@@ -28,16 +41,6 @@ export const handlers = [
   }),
 
   http.get("/api/feedback", () => {
-    return HttpResponse.json([
-      {
-        id: "mock-submission-existing",
-        submittedAt: "2026-01-15T10:30:00.000Z",
-        responses: [
-          { id: "r1", questionKey: "praise-1", value: "Great communicator" },
-          { id: "r2", questionKey: "criticism-1", value: "Could delegate more" },
-          { id: "r3", questionKey: "suggestion-1", value: "Should seek feedback more often" },
-        ],
-      },
-    ]);
+    return HttpResponse.json([]);
   }),
 ];

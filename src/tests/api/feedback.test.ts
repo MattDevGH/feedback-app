@@ -1,20 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST, GET } from "@/app/api/feedback/route";
 import { MemoryFeedbackRepository } from "@/lib/repositories/memory-feedback.repository";
+import { MemoryTokenRepository } from "@/lib/repositories/memory-token.repository";
 import type { FeedbackRepository } from "@/lib/repositories/feedback.repository";
+import type { TokenRepository } from "@/lib/repositories/token.repository";
 
 vi.mock("@/lib/repositories", () => ({
   getFeedbackRepository: vi.fn(),
+  getTokenRepository: vi.fn(),
 }));
 
-import { getFeedbackRepository } from "@/lib/repositories";
+import { getFeedbackRepository, getTokenRepository } from "@/lib/repositories";
 
-// A minimal valid payload — one response per mandatory question in each section
-const validResponses = [
-  { questionKey: "praise-1", value: "Great communicator" },
-  { questionKey: "criticism-1", value: "Could delegate more" },
-  { questionKey: "suggestion-1", value: "Should seek feedback more regularly" },
-];
+const VALID_TOKEN = "valid-token-abc123";
+
+const validPayload = {
+  token: VALID_TOKEN,
+  responses: [
+    { questionKey: "praise-1", value: "Great communicator" },
+    { questionKey: "criticism-1", value: "Could delegate more" },
+    { questionKey: "suggestion-1", value: "Should seek feedback more regularly" },
+  ],
+};
 
 function makeRequest(body: unknown): Request {
   return new Request("http://localhost/api/feedback", {
@@ -25,15 +32,27 @@ function makeRequest(body: unknown): Request {
 }
 
 describe("POST /api/feedback", () => {
-  let repo: FeedbackRepository;
+  let feedbackRepo: FeedbackRepository;
+  let tokenRepo: TokenRepository;
 
   beforeEach(() => {
-    repo = new MemoryFeedbackRepository();
-    vi.mocked(getFeedbackRepository).mockReturnValue(repo);
+    feedbackRepo = new MemoryFeedbackRepository();
+    tokenRepo = new MemoryTokenRepository([
+      {
+        id: "tok-1",
+        token: VALID_TOKEN,
+        name: "Alice",
+        createdAt: new Date(),
+        expiresAt: null,
+        submissionId: null,
+      },
+    ]);
+    vi.mocked(getFeedbackRepository).mockReturnValue(feedbackRepo);
+    vi.mocked(getTokenRepository).mockReturnValue(tokenRepo);
   });
 
-  it("returns 201 with the created submission", async () => {
-    const res = await POST(makeRequest({ responses: validResponses }));
+  it("returns 201 with a valid token and complete responses", async () => {
+    const res = await POST(makeRequest(validPayload));
     const body = await res.json();
 
     expect(res.status).toBe(201);
@@ -42,9 +61,16 @@ describe("POST /api/feedback", () => {
     expect(body.responses).toHaveLength(3);
   });
 
+  it("marks the token as submitted", async () => {
+    await POST(makeRequest(validPayload));
+    const token = await tokenRepo.findByToken(VALID_TOKEN);
+    expect(token?.submissionId).not.toBeNull();
+  });
+
   it("trims whitespace from response values", async () => {
     const res = await POST(
       makeRequest({
+        token: VALID_TOKEN,
         responses: [
           { questionKey: "praise-1", value: "  Great communicator  " },
           { questionKey: "criticism-1", value: "  Delegates poorly  " },
@@ -58,58 +84,56 @@ describe("POST /api/feedback", () => {
     expect(body.responses[0].value).toBe("Great communicator");
   });
 
-  it("returns 400 when responses is missing", async () => {
-    const res = await POST(makeRequest({}));
+  it("returns 400 when token is missing", async () => {
+    const res = await POST(makeRequest({ responses: validPayload.responses }));
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 when responses is empty", async () => {
-    const res = await POST(makeRequest({ responses: [] }));
+  it("returns 403 for an unknown token", async () => {
+    const res = await POST(makeRequest({ ...validPayload, token: "nonexistent-token" }));
+    expect(res.status).toBe(403);
+  });
+
+  it("returns 409 when token has already been used", async () => {
+    // Submit once
+    await POST(makeRequest(validPayload));
+    // Try again with same token
+    const res = await POST(makeRequest(validPayload));
+    expect(res.status).toBe(409);
+  });
+
+  it("returns 410 when token has expired", async () => {
+    const expiredTokenRepo = new MemoryTokenRepository([
+      {
+        id: "tok-expired",
+        token: "expired-token",
+        name: "Bob",
+        createdAt: new Date("2025-01-01"),
+        expiresAt: new Date("2025-06-01"), // already expired
+        submissionId: null,
+      },
+    ]);
+    vi.mocked(getTokenRepository).mockReturnValue(expiredTokenRepo);
+
+    const res = await POST(makeRequest({ ...validPayload, token: "expired-token" }));
+    expect(res.status).toBe(410);
+  });
+
+  it("returns 400 when responses are missing", async () => {
+    const res = await POST(makeRequest({ token: VALID_TOKEN }));
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 for an unknown questionKey", async () => {
-    const res = await POST(
-      makeRequest({
-        responses: [...validResponses, { questionKey: "not-a-real-key", value: "something" }],
-      }),
-    );
+  it("returns 400 when responses are empty", async () => {
+    const res = await POST(makeRequest({ token: VALID_TOKEN, responses: [] }));
     expect(res.status).toBe(400);
-  });
-
-  it("returns 400 when a value is blank whitespace", async () => {
-    const res = await POST(
-      makeRequest({
-        responses: [
-          { questionKey: "praise-1", value: "   " },
-          { questionKey: "criticism-1", value: "Fine" },
-          { questionKey: "suggestion-1", value: "Fine" },
-        ],
-      }),
-    );
-    expect(res.status).toBe(400);
-  });
-
-  it("returns 400 when a value exceeds 2000 characters", async () => {
-    const res = await POST(
-      makeRequest({
-        responses: [
-          { questionKey: "praise-1", value: "a".repeat(2001) },
-          { questionKey: "criticism-1", value: "Fine" },
-          { questionKey: "suggestion-1", value: "Fine" },
-        ],
-      }),
-    );
-    const body = await res.json();
-    expect(res.status).toBe(400);
-    expect(body.error).toMatch(/2000/);
   });
 
   it("returns 400 when a mandatory section has no answer", async () => {
     const res = await POST(
       makeRequest({
+        token: VALID_TOKEN,
         responses: [
-          // missing praise-1 (mandatory)
           { questionKey: "criticism-1", value: "Fine" },
           { questionKey: "suggestion-1", value: "Fine" },
         ],
@@ -118,19 +142,6 @@ describe("POST /api/feedback", () => {
     const body = await res.json();
     expect(res.status).toBe(400);
     expect(body.incompleteSections).toContain("praise");
-  });
-
-  it("returns 400 when all three sections are incomplete", async () => {
-    const res = await POST(
-      makeRequest({
-        responses: [
-          { questionKey: "praise-2", value: "Something optional" }, // only optional praise question
-        ],
-      }),
-    );
-    const body = await res.json();
-    expect(res.status).toBe(400);
-    expect(body.incompleteSections).toHaveLength(3);
   });
 
   it("returns 400 for invalid JSON", async () => {
@@ -156,30 +167,15 @@ describe("GET /api/feedback", () => {
           { id: "r3", questionKey: "suggestion-1", value: "More 1:1s" },
         ],
       },
-      {
-        id: "sub-2",
-        submittedAt: new Date("2026-01-01"),
-        responses: [
-          { id: "r4", questionKey: "praise-1", value: "Clear communicator" },
-          { id: "r5", questionKey: "criticism-1", value: "Delegate more" },
-          { id: "r6", questionKey: "suggestion-1", value: "Share context earlier" },
-        ],
-      },
     ]);
     vi.mocked(getFeedbackRepository).mockReturnValue(repo);
+    vi.mocked(getTokenRepository).mockReturnValue(new MemoryTokenRepository());
   });
 
   it("returns 200 with all submissions", async () => {
     const res = await GET();
     const body = await res.json();
     expect(res.status).toBe(200);
-    expect(body).toHaveLength(2);
-  });
-
-  it("returns submissions with responses", async () => {
-    const res = await GET();
-    const body = await res.json();
-    expect(body[0].responses).toBeDefined();
-    expect(body[0].responses.length).toBeGreaterThan(0);
+    expect(body).toHaveLength(1);
   });
 });

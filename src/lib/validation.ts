@@ -16,6 +16,7 @@ const responseSchema = z.object({
 });
 
 const submissionSchema = z.object({
+  token: z.string().min(1, "Token is required"),
   responses: z.array(responseSchema).min(1, "At least one response is required"),
 });
 

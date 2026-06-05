@@ -15,7 +15,7 @@ function createPrismaClient(): PrismaClient {
   if (!connectionString) {
     throw new Error(
       "POSTGRES_PRISMA_URL is not set. Add it to .env.local for local dev, " +
-      "or check Vercel environment variables for production."
+        "or check Vercel environment variables for production.",
     );
   }
 

@@ -1,7 +1,5 @@
 # AI Session Context
 
-# AI Session Context
-
 > Read this at the start of every session to resume without re-discovery.
 >
 > **Mandatory update rule:** Update both AI_CONTEXT.md and README.md as part of
@@ -21,17 +19,33 @@ feedback on what you do well and what you could improve. A private `/admin` page
 
 ---
 
+## Code Principles
+
+Code should read like well-written prose (Feathers). Follow Clean Code (Robert C. Martin):
+
+- **Small functions** — each does one thing, named to describe what it does
+- **Separate concerns** — validation in `validation.ts`, state management in hooks, rendering in components, persistence behind the repository interface
+- **No duplication** — shared logic (e.g. `validateSubmission`, `isSectionComplete`) is defined once and imported where needed. MSW handlers reuse the same validation as the real API.
+- **Names tell the truth** — files, functions, variables should make the code self-documenting
+- **Extract, don't inline** — if logic requires a comment to explain, extract it into a named function instead
+- **Zod for validation** — declarative schemas replace manual type-checking. No `as` casts for untrusted input.
+- **Prettier enforced** — formatting is never a discussion. Pre-commit hook ensures consistency.
+
+---
+
 ## Stack
 
-| Layer     | Choice                        | Notes                                                                                                                                                                                                                |
-| --------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code                                                                                                                                                  |
-| Language  | TypeScript (strict)           | No JS files in src/                                                                                                                                                                                                  |
-| ORM       | Prisma 7 + Neon serverless    | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
-| DB        | PostgreSQL (Neon)             | Hosted on Neon via Vercel integration. Same DB for local dev and production. For offline dev, use a local Postgres container (see below).                                                                            |
-| Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss)                                                                                                                                                                                |
-| Testing   | Vitest + RTL + msw + jest-axe | See Testing section                                                                                                                                                                                                  |
-| CI        | GitHub Actions                | .github/workflows/ci.yml                                                                                                                                                                                             |
+| Layer      | Choice                        | Notes                                                                                                                                                                                                                |
+| ---------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework  | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code                                                                                                                                                  |
+| Language   | TypeScript (strict)           | No JS files in src/                                                                                                                                                                                                  |
+| ORM        | Prisma 7 + Neon serverless    | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
+| DB         | PostgreSQL (Neon)             | Hosted on Neon via Vercel integration. Same DB for local dev and production. For offline dev, use a local Postgres container (see Local Development).                                                                |
+| Validation | Zod                           | Schema-based validation for API input. Shared between route handlers and MSW mocks.                                                                                                                                  |
+| Styling    | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss)                                                                                                                                                                                |
+| Testing    | Vitest + RTL + msw + jest-axe | See Testing section                                                                                                                                                                                                  |
+| Formatting | Prettier                      | Enforced via pre-commit hook (Husky + lint-staged). `npm run format` to format manually.                                                                                                                             |
+| CI         | GitHub Actions                | .github/workflows/ci.yml                                                                                                                                                                                             |
 
 ---
 
@@ -42,46 +56,53 @@ src/
   app/
     api/
       feedback/
-        route.ts          # POST (submit, public) + GET (list all, key-protected) feedback
+        route.ts          # POST (submit, public) + GET (list all, key-protected)
     admin/
-      page.tsx            # Server component — lists all feedback, newest first (key-protected)
+      page.tsx            # Server component — lists all feedback (key-protected)
+      error.tsx           # Error boundary for admin page
+    hooks/
+      useFeedbackForm.ts  # Custom hook — form state, submission, validation
+    error.tsx             # Root error boundary
     unauthorized/
       page.tsx            # Shown when admin key is missing or wrong
-    page.tsx              # Client component — public feedback form (two questions)
+    page.tsx              # Client component — feedback form (presentational)
     layout.tsx
     globals.css
-  proxy.ts                # Protects /admin and GET /api/feedback with ADMIN_SECRET_KEY (Next.js 16: middleware renamed to proxy)
+  proxy.ts                # Protects /admin and GET /api/feedback with ADMIN_SECRET_KEY
   lib/
-    prisma.ts             # Singleton PrismaClient with BetterSqlite3 adapter
+    prisma.ts             # Singleton PrismaClient with Neon adapter
+    validation.ts         # Zod schema + validateSubmission() for API input
     repositories/
-      feedback.repository.ts         # FeedbackRepository interface + FeedbackSubmission/FeedbackResponse types
-      prisma-feedback.repository.ts  # Prisma/SQLite implementation
-      memory-feedback.repository.ts  # In-memory implementation (used in tests)
-      index.ts                       # Factory: getFeedbackRepository() — swap implementations here
-    questions.config.ts              # Static question bank (keys, categories, mandatory flags, display order)
+      feedback.repository.ts         # FeedbackRepository interface + types
+      prisma-feedback.repository.ts  # Prisma/Neon implementation
+      memory-feedback.repository.ts  # In-memory implementation (tests)
+      index.ts                       # Factory: getFeedbackRepository()
+    questions.config.ts              # Static question bank + section completion logic
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
   tests/
     setup.ts              # msw server lifecycle
     mocks/
-      handlers.ts         # msw handlers for /api/feedback (GET + POST)
+      handlers.ts         # msw handlers — reuses validateSubmission()
       server.ts           # msw setupServer
     api/
-      items.test.ts       # Route handler tests using MemoryFeedbackRepository (no DB required)
+      feedback.test.ts    # Route handler tests using MemoryFeedbackRepository
     ui/
-      page.test.tsx       # Feedback form: render, disabled state, submit flow, error state
-      accessibility.test.tsx  # axe-core scan of feedback form
+      page.test.tsx       # Feedback form UI tests
+      accessibility.test.tsx  # axe-core scan
     security/
-      headers.test.ts     # Verifies security header config in next.config.ts
-      middleware.test.ts  # Verifies admin key protection logic
+      headers.test.ts     # Security header config tests
+      middleware.test.ts  # Admin key protection tests
 prisma/
-  schema.prisma           # Feedback model (id cuid, strengths, improvements, submittedAt)
-  dev.db                  # SQLite database (gitignored)
+  schema.prisma           # FeedbackSubmission + FeedbackResponse models (PostgreSQL)
   migrations/
-    20260603154642_init/  # Initial migration — creates Feedback table
-prisma.config.ts          # Prisma 7 datasource config (holds the db URL)
-.env.local                # ADMIN_SECRET_KEY (gitignored — never commit)
-.env.example              # Template showing required env vars (committed, no real values)
+    20260605160456_init/  # Initial Postgres migration
+prisma.config.ts          # Prisma CLI config (datasource URL)
+.env.local                # ADMIN_SECRET_KEY + POSTGRES_PRISMA_URL (gitignored)
+.env.example              # Template (committed, no real values)
+.prettierrc               # Prettier config
+.prettierignore           # Prettier ignore patterns
+.husky/pre-commit         # Runs lint-staged before each commit
 ```
 
 ---
@@ -89,36 +110,27 @@ prisma.config.ts          # Prisma 7 datasource config (holds the db URL)
 ## Prisma Schema
 
 ```prisma
-// A single submission from one reviewer
 model FeedbackSubmission {
   id          String             @id @default(cuid())
   submittedAt DateTime           @default(now())
   responses   FeedbackResponse[]
 }
 
-// One response per question answered within a submission.
-// questionKey references a key in src/lib/questions.config.ts
 model FeedbackResponse {
   id           String             @id @default(cuid())
   submissionId String
-  submission   FeedbackSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission   FeedbackSubmission @relation(...)
   questionKey  String
   value        String
 }
 ```
 
+---
+
 ## Question Config
 
-Questions live in `src/lib/questions.config.ts` — edit this file to add, remove, or reword questions.
-No other files need to change when questions are updated.
-
-Each question has:
-
-- `key` — stable identifier stored in the DB (e.g. `"praise-1"`)
-- `category` — `"praise"` | `"criticism"` | `"suggestion"` (drives colour-coding)
-- `text` — displayed to the user
-- `mandatory` — if true, must be answered for the section to be complete
-- `displayOrder` — controls render order in the UI
+Questions live in `src/lib/questions.config.ts`. Edit this file to change questions.
+No other files need to change.
 
 **Section completion rule:**
 
@@ -129,24 +141,22 @@ Current questions: praise-1 (mandatory), praise-2, criticism-1 (mandatory), crit
 
 ---
 
----
-
 ## API
 
-| Method | Path          | Auth      | Description                                         |
-| ------ | ------------- | --------- | --------------------------------------------------- |
-| POST   | /api/feedback | none      | Submit feedback. Validates section completion rules |
-| GET    | /api/feedback | admin key | Return all submissions with responses               |
+| Method | Path          | Auth      | Description                                        |
+| ------ | ------------- | --------- | -------------------------------------------------- |
+| POST   | /api/feedback | none      | Submit feedback. Validated by Zod + section rules. |
+| GET    | /api/feedback | admin key | Return all submissions with responses.             |
 
 ---
 
 ## Pages
 
-| Route         | Type   | Description                                               |
-| ------------- | ------ | --------------------------------------------------------- |
-| /             | Client | Public feedback form (two free-text questions)            |
-| /admin        | Server | View all submitted feedback, newest first (key-protected) |
-| /unauthorized | Server | Shown when admin key is missing or incorrect              |
+| Route         | Type   | Description                                              |
+| ------------- | ------ | -------------------------------------------------------- |
+| /             | Client | Feedback form (presentational, logic in useFeedbackForm) |
+| /admin        | Server | View all submitted feedback (key-protected)              |
+| /unauthorized | Server | Shown when admin key is missing or incorrect             |
 
 ---
 
@@ -154,70 +164,61 @@ Current questions: praise-1 (mandatory), praise-2, criticism-1 (mandatory), crit
 
 Protected by a secret key in the query string: `/admin?key=<ADMIN_SECRET_KEY>`
 
-- Key is stored in `.env.local` (gitignored)
-- Must also be set as an environment variable on Vercel when deploying
-- Middleware handles protection — fails closed if env var is unset
-- Timing-safe comparison used to prevent key enumeration
-- See `.env.example` for the variable name
+- Key stored in `.env.local` (gitignored) and as a Vercel env var
+- Proxy fails closed — if env var is unset, access is denied
+- Timing-safe comparison prevents key length and value leakage
 
-To rotate the key: generate a new value with
-`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`,
-update `.env.local` and the Vercel env var.
+To rotate: generate a new value, update `.env.local` and the Vercel env var.
 
 ---
 
 ## Local Development
 
-Local dev connects to the same Neon Postgres database as production via `POSTGRES_PRISMA_URL` in `.env.local`.
+Local dev connects to the same Neon Postgres database via `POSTGRES_PRISMA_URL` in `.env.local`.
 
-**For fully offline development** (no internet required), spin up a local Postgres container instead:
+**For fully offline development**, use a local Postgres container:
 
 ```bash
 docker run -p 5432:5432 -e POSTGRES_PASSWORD=local postgres:16
 ```
 
-Then set in `.env.local`:
-
-```
-POSTGRES_PRISMA_URL=postgresql://postgres:local@localhost:5432/postgres
-```
-
-And apply migrations: `npx prisma migrate deploy`
+Set `POSTGRES_PRISMA_URL=postgresql://postgres:local@localhost:5432/postgres` and run `npx prisma migrate deploy`.
 
 **Do NOT reintroduce SQLite** — dual-provider schemas cause migration conflicts with Prisma 7.
 
-Tests never touch the database — they use `MemoryFeedbackRepository` and run fully offline regardless of this setting.
+**After setting `$env:` variables in PowerShell**, close the terminal before running `npm run dev` to avoid stale values overriding `.env.local`.
 
 ---
 
 ## Test Coverage
 
 **Approach: TDD**
+
 Write tests before or alongside implementation. For API routes, validation logic, and business rules, write the failing test first then implement. UI tests are written alongside since the component shape drives what's testable. Do not write implementation first and retrofit tests.
 
-- ui/page.test.tsx: form renders, disabled state, success flow, error flow, overlength error, section completion indicators
+- api/feedback.test.ts: route handler tests (POST + GET) via MemoryFeedbackRepository
+- ui/page.test.tsx: form renders, disabled state, success flow, error flow, section indicators
 - ui/accessibility.test.tsx: axe scan of feedback form
 - security/headers.test.ts: security header config
-- security/middleware.test.ts: admin key protection (valid, invalid, missing, sub-paths)
-- api/items.test.ts: route handler tests (POST + GET) using MemoryFeedbackRepository — no DB required
+- security/middleware.test.ts: admin key protection
 
-npm test — single run (CI)
-npm run test:watch — watch mode (TDD)
+`npm test` — single run (CI)
+`npm run test:watch` — watch mode (TDD)
 
 ---
 
 ## Key Decisions & Reasoning
 
-- Repository pattern — application logic depends on `FeedbackRepository` interface, not Prisma directly. Swap `getFeedbackRepository()` in `src/lib/repositories/index.ts` to change persistence backend
-- `MemoryFeedbackRepository` used in tests — no database required, route handlers fully testable
-- To add a new persistence backend: implement `FeedbackRepository`, update the factory in `index.ts`
+- Repository pattern — application logic depends on `FeedbackRepository` interface only
+- Zod for validation — declarative, self-documenting, shared between API and MSW
+- Custom hook (`useFeedbackForm`) — separates state/logic from presentation
+- MSW handlers reuse `validateSubmission()` — no drift, no duplication
+- Error boundaries — friendly error pages, never raw crashes
+- Prettier + Husky + lint-staged — formatting enforced at commit time
+- No `as` casts for untrusted input — Zod handles parsing and narrowing
 - Admin protected by secret key in query string — simple, no external auth dependency
-- Query string keys can appear in server logs — acceptable at this scale; noted in code
-- Middleware fails closed — if ADMIN_SECRET_KEY env var is unset, access is denied
-- Timing-safe string comparison in proxy — prevents key enumeration attacks
-- Admin page is a server component — reads DB directly, no client-side fetch needed
-- No `url` in schema.prisma — Prisma 7 breaking change; URL configured in prisma.config.ts only
-- Submit button disabled until both fields have content — prevents empty submissions client-side
+- Proxy fails closed — if ADMIN_SECRET_KEY is unset, access is denied
+- Admin page is a server component — reads DB directly
 - Feedback IDs use cuid() — suitable for future unique-link-per-reviewer feature
 
 ---
@@ -225,12 +226,7 @@ npm run test:watch — watch mode (TDD)
 ## Outstanding / Planned Work
 
 - [ ] Unique per-reviewer links — token stored in DB, supports draft/resume, marks as submitted on completion
-- [ ] Anonymous submission option — user checks "submit anonymously"; app records submission as anonymous
-      in the DB (no token correlation shown in admin view), then presents a pre-filled mailto link addressed
-      to the line manager with the feedback content in the body. The user sends from their own email client —
-      the app never handles the email, giving a clear trust boundary. Explanatory text will inform the user
-      what "anonymous" means in this context (anonymous from the app owner; routed via their own email to
-      the line manager). Note: mailto has a practical body length limit — warn or cap if content is long.
+- [ ] Anonymous submission option — "submit anonymously" checkbox; presents a mailto link to line manager with feedback content pre-filled. App records submission as anonymous (no token correlation in admin view). Explanatory text describes what "anonymous" means in this context.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
-- [ ] Mark questions as mandatory vs optional
+- [ ] Interleaved colour-coded question UI (questions in any order, colour indicates category)
 - [x] Migrate DB to Vercel Postgres (Neon) when deploying to production

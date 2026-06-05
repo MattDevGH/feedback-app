@@ -1,35 +1,26 @@
 import { PrismaClient } from "@/generated/prisma";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { neonConfig, Pool } from "@neondatabase/serverless";
 
-// In production (Vercel + Neon), use the Neon serverless adapter.
-// In development, use the local SQLite adapter.
-//
-// POSTGRES_PRISMA_URL is injected automatically by the Vercel Neon integration.
-// DATABASE_URL in .env.local will override for local Postgres if ever needed.
+// Provide a WebSocket implementation in Node.js environments (local dev).
+// Vercel serverless has globalThis.WebSocket natively.
+if (!globalThis.WebSocket) {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { WebSocket } = require("ws");
+  neonConfig.webSocketConstructor = WebSocket;
+}
 
 function createPrismaClient(): PrismaClient {
-  if (process.env.NODE_ENV === "production" || process.env.POSTGRES_PRISMA_URL) {
-    const { PrismaNeon } = require("@prisma/adapter-neon");
-    const { neonConfig, Pool } = require("@neondatabase/serverless");
-
-    // Use WebSockets for Neon's serverless connection pooler
-    const { WebSocket } = require("ws");
-    neonConfig.webSocketConstructor = WebSocket;
-
-    const connectionString = process.env.POSTGRES_PRISMA_URL;
-    if (!connectionString) {
-      throw new Error("POSTGRES_PRISMA_URL environment variable is not set.");
-    }
-
-    const pool = new Pool({ connectionString });
-    const adapter = new PrismaNeon(pool);
-    return new PrismaClient({ adapter });
+  const connectionString = process.env.POSTGRES_PRISMA_URL;
+  if (!connectionString) {
+    throw new Error(
+      "POSTGRES_PRISMA_URL is not set. Add it to .env.local for local dev, " +
+      "or check Vercel environment variables for production."
+    );
   }
 
-  // Local development — SQLite via better-sqlite3
-  const { PrismaBetterSqlite3 } = require("@prisma/adapter-better-sqlite3");
-  const path = require("path");
-  const dbPath = path.resolve(process.cwd(), "prisma", "dev.db");
-  const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaNeon(pool);
   return new PrismaClient({ adapter });
 }
 

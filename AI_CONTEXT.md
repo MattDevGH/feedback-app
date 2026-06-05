@@ -1,4 +1,5 @@
 # AI Session Context
+# AI Session Context
 
 > Read this at the start of every session to resume without re-discovery.
 >
@@ -24,8 +25,8 @@ feedback on what you do well and what you could improve. A private `/admin` page
 |-----------|-------------------------------|-------|
 | Framework | Next.js 16 (App Router)       | Read node_modules/next/dist/docs/ before writing Next-specific code |
 | Language  | TypeScript (strict)           | No JS files in src/ |
-| ORM       | Prisma 7 + better-sqlite3     | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
-| DB        | SQLite (prisma/dev.db)        | Gitignored. Migration applied: 20260603154642_init |
+| ORM       | Prisma 7 + Neon serverless    | Driver adapter pattern. Config in prisma.config.ts. No `url` in schema.prisma — Prisma 7 breaking change. `postinstall` runs `prisma generate` for Vercel/fresh clones. **Run manually after local schema changes.** |
+| DB        | PostgreSQL (Neon)             | Hosted on Neon via Vercel integration. Same DB for local dev and production. For offline dev, use a local Postgres container (see below). |
 | Styling   | Tailwind CSS v4               | PostCSS plugin (@tailwindcss/postcss) |
 | Testing   | Vitest + RTL + msw + jest-axe | See Testing section |
 | CI        | GitHub Actions                | .github/workflows/ci.yml |
@@ -158,6 +159,26 @@ Protected by a secret key in the query string: `/admin?key=<ADMIN_SECRET_KEY>`
 To rotate the key: generate a new value with
 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`,
 update `.env.local` and the Vercel env var.
+
+---
+
+## Local Development
+
+Local dev connects to the same Neon Postgres database as production via `POSTGRES_PRISMA_URL` in `.env.local`.
+
+**For fully offline development** (no internet required), spin up a local Postgres container instead:
+```bash
+docker run -p 5432:5432 -e POSTGRES_PASSWORD=local postgres:16
+```
+Then set in `.env.local`:
+```
+POSTGRES_PRISMA_URL=postgresql://postgres:local@localhost:5432/postgres
+```
+And apply migrations: `npx prisma migrate deploy`
+
+**Do NOT reintroduce SQLite** — dual-provider schemas cause migration conflicts with Prisma 7.
+
+Tests never touch the database — they use `MemoryFeedbackRepository` and run fully offline regardless of this setting.
 
 ---
 

@@ -6,6 +6,7 @@
 >
 > **Mandatory update rule:** Update both AI_CONTEXT.md and README.md as part of
 > any commit that changes project structure, behaviour, test coverage, or conventions.
+> Also check off any completed items in the Outstanding / Planned Work list.
 
 ---
 

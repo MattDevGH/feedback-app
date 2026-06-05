@@ -88,6 +88,8 @@ Pre-commit hook runs lint-staged automatically.
 
 ## Planned Features
 
+- Free-form unprompted feedback (user selects continue/stop/start category)
+- Collapsible optional questions (mandatory shown as full cards, optional as expandable list)
 - Anonymous submission option (mailto link to line manager)
 - Email invites (auto-send invite link to a colleague's email)
 - Request an invite (visitors submit email, admin approves)

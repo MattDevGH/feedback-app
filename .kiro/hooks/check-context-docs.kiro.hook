@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Check AI_CONTEXT is current",
+  "description": "After the agent stops, reminds it to verify that AI_CONTEXT.md and README.md reflect any structural, behavioural, or convention changes made during the session.",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Before finishing: check if AI_CONTEXT.md and README.md are still accurate given the changes made in this session. If any file structure, behaviour, test coverage, tooling, or conventions changed, update both files now. Pay special attention to: the File Structure section, Test Coverage list, Key Decisions, and Outstanding Work items."
+  }
+}

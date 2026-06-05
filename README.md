@@ -85,7 +85,6 @@ Pre-commit hook runs lint-staged automatically.
 
 ## Planned Features
 
-- Admin UI for token management (create, view status, copy links)
 - Anonymous submission option (mailto link to line manager)
 - Email invites (auto-send invite link to a colleague's email)
 - Request an invite (visitors submit email, admin approves)

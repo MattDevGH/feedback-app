@@ -64,6 +64,7 @@ src/
         route.ts          # POST (create token) + GET (list tokens) — admin-protected
     admin/
       page.tsx            # Server component — lists all feedback (key-protected)
+      TokenPanel.tsx      # Client component — create tokens, copy links, view status
       error.tsx           # Error boundary for admin page
     f/
       [token]/
@@ -250,4 +251,3 @@ Write tests before or alongside implementation. For API routes, validation logic
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)
 - [ ] Request an invite — public landing page allows visitors to submit their email to request access. Admin approves/rejects requests and issues tokens.
-- [ ] Admin UI for token management — create tokens, view status, copy invite links

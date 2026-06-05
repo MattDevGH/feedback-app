@@ -249,6 +249,8 @@ Write tests before or alongside implementation. For API routes, validation logic
 
 ## Outstanding / Planned Work
 
+- [ ] Free-form unprompted feedback — a "say something else" section where the user writes freely and selects a category (continue/stop/start). Stored as `freeform-praise`, `freeform-criticism`, or `freeform-suggestion` question keys. No schema change needed.
+- [ ] Collapsible optional questions — mandatory questions shown as full cards with textarea visible; optional questions grouped as a compact clickable list that expands on selection. Reduces visual overwhelm.
 - [ ] Anonymous submission option — "submit anonymously" checkbox; presents a mailto link to line manager with feedback content pre-filled. App records submission as anonymous (no token correlation in admin view). Explanatory text describes what "anonymous" means in this context.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)

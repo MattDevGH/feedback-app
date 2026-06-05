@@ -67,7 +67,7 @@ src/
       page.tsx            # Server component — lists all feedback (key-protected)
       TokenPanel.tsx      # Client component — create tokens, copy links, view status
       error.tsx           # Error boundary for admin page
-    f/
+    feedback/
       [token]/
         page.tsx          # Server component — validates token, renders form or status
         FeedbackForm.tsx  # Client component — the actual feedback form
@@ -173,12 +173,12 @@ User-facing labels use **stop/start/continue** framing (not praise/criticism/sug
 
 ## Pages
 
-| Route         | Type   | Description                                                 |
-| ------------- | ------ | ----------------------------------------------------------- |
-| /             | Server | Landing page — directs users to use their invite link       |
-| /f/[token]    | Server | Token-validated feedback form (draft saved to localStorage) |
-| /admin        | Server | View all submitted feedback (key-protected)                 |
-| /unauthorized | Server | Shown when admin key is missing or incorrect                |
+| Route             | Type   | Description                                                 |
+| ----------------- | ------ | ----------------------------------------------------------- |
+| /                 | Server | Landing page — directs users to use their invite link       |
+| /feedback/[token] | Server | Token-validated feedback form (draft saved to localStorage) |
+| /admin            | Server | View all submitted feedback (key-protected)                 |
+| /unauthorized     | Server | Shown when admin key is missing or incorrect                |
 
 ---
 

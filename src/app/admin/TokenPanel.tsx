@@ -40,7 +40,7 @@ export default function TokenPanel({ tokens: initialTokens, adminKey }: Props) {
 
   function getInviteUrl(token: string) {
     const base = typeof window !== "undefined" ? window.location.origin : "";
-    return `${base}/f/${token}`;
+    return `${base}/feedback/${token}`;
   }
 
   async function copyLink(token: ReviewToken) {

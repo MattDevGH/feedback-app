@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import FeedbackForm from "@/app/f/[token]/FeedbackForm";
+import FeedbackForm from "@/app/feedback/[token]/FeedbackForm";
 import LandingPage from "@/app/page";
 
 // Helper: fill all mandatory questions to make the form submittable

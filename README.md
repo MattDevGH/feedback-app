@@ -20,7 +20,7 @@ Then open [http://localhost:3000](http://localhost:3000).
 | Route                    | Description                                        |
 | ------------------------ | -------------------------------------------------- |
 | `/`                      | Landing page (directs users to use invite link)    |
-| `/f/[token]`             | Feedback form (token-validated, draft persistence) |
+| `/feedback/[token]`      | Feedback form (token-validated, draft persistence) |
 | `/admin?key=`            | View all submitted feedback (requires admin key)   |
 | `/unauthorized`          | Shown when admin key is missing or wrong           |
 | `POST /api/feedback`     | Submit feedback (requires valid token in body)     |

@@ -5,7 +5,6 @@ import {
   CATEGORIES,
   CATEGORY_CONFIG,
   isSectionComplete,
-  isFormComplete,
   type Category,
 } from "@/lib/questions.config";
 import { useFeedbackForm } from "@/app/hooks/useFeedbackForm";
@@ -51,11 +50,11 @@ export default function FeedbackForm({ token }: { token: string }) {
         >
           <div className="space-y-6 mb-8">
             {orderedQuestions.map((question) => {
-              const cfg = CATEGORY_CONFIG[question.category as Category];
+              const categoryStyle = CATEGORY_CONFIG[question.category as Category];
               return (
                 <div
                   key={question.key}
-                  className={`bg-white rounded-xl border-l-4 ${cfg.borderColor} shadow-sm p-5`}
+                  className={`bg-white rounded-xl border-l-4 ${categoryStyle.borderColor} shadow-sm p-5`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <label htmlFor={question.key} className="text-sm font-medium text-gray-800">
@@ -67,9 +66,9 @@ export default function FeedbackForm({ token }: { token: string }) {
                       )}
                     </label>
                     <span
-                      className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${cfg.badgeColor}`}
+                      className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${categoryStyle.badgeColor}`}
                     >
-                      {cfg.label}
+                      {categoryStyle.label}
                     </span>
                   </div>
                   <textarea
@@ -112,18 +111,18 @@ function SectionIndicators({ answers }: { answers: Record<string, string> }) {
   return (
     <div className="flex gap-3 mb-8" aria-label="Section completion status">
       {CATEGORIES.map((category) => {
-        const cfg = CATEGORY_CONFIG[category];
+        const categoryStyle = CATEGORY_CONFIG[category];
         const complete = isSectionComplete(category, answers);
         return (
           <span
             key={category}
             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              complete ? cfg.badgeColor : "bg-gray-100 text-gray-400"
+              complete ? categoryStyle.badgeColor : "bg-gray-100 text-gray-400"
             }`}
-            aria-label={`${cfg.label}: ${complete ? "complete" : "incomplete"}`}
+            aria-label={`${categoryStyle.label}: ${complete ? "complete" : "incomplete"}`}
           >
             <span aria-hidden="true">{complete ? "✓" : "○"}</span>
-            {cfg.label}
+            {categoryStyle.label}
           </span>
         );
       })}

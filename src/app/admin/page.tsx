@@ -64,14 +64,18 @@ export default async function AdminPage({ searchParams }: Props) {
                   <ul className="space-y-4">
                     {submission.responses.map((response) => {
                       const question = questionMap[response.questionKey];
+                      // Fallback to "praise" styling if the question was deleted from config
                       const category = (question?.category ?? "praise") as Category;
-                      const cfg = CATEGORY_CONFIG[category];
+                      const categoryStyle = CATEGORY_CONFIG[category];
                       return (
-                        <li key={response.id} className={`border-l-4 ${cfg.borderColor} pl-4`}>
+                        <li
+                          key={response.id}
+                          className={`border-l-4 ${categoryStyle.borderColor} pl-4`}
+                        >
                           <p
-                            className={`text-xs font-semibold uppercase tracking-wide mb-1 ${cfg.color}`}
+                            className={`text-xs font-semibold uppercase tracking-wide mb-1 ${categoryStyle.color}`}
                           >
-                            {cfg.label}
+                            {categoryStyle.label}
                           </p>
                           <p className="text-xs text-gray-400 mb-1">
                             {question?.text ?? response.questionKey}

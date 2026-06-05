@@ -11,6 +11,7 @@ export type FeedbackSubmission = {
   id: string;
   submittedAt: Date;
   responses: FeedbackResponse[];
+  reviewerName?: string;
 };
 
 // A response to a single question within a submission.

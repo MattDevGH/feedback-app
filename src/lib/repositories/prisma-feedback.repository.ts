@@ -21,9 +21,16 @@ export class PrismaFeedbackRepository implements FeedbackRepository {
   }
 
   async findAll(): Promise<FeedbackSubmission[]> {
-    return prisma.feedbackSubmission.findMany({
+    const submissions = await prisma.feedbackSubmission.findMany({
       orderBy: { submittedAt: "desc" },
-      include: { responses: true },
+      include: { responses: true, reviewToken: true },
     });
+
+    return submissions.map((s) => ({
+      id: s.id,
+      submittedAt: s.submittedAt,
+      responses: s.responses,
+      reviewerName: s.reviewToken?.name,
+    }));
   }
 }

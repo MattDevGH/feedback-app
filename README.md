@@ -30,13 +30,16 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Generating Invite Links
 
+In the admin area (`/admin?key=...`), use the "Create invite" form at the top of the page.
+Type a colleague's name, click create, then click "Copy link" to get their unique URL.
+
+The API also supports creating tokens programmatically:
+
 ```bash
 curl -X POST "https://your-app.vercel.app/api/tokens?key=YOUR_ADMIN_KEY" \
   -H "Content-Type: application/json" \
   -d '{"name": "Alice"}'
 ```
-
-Share the returned token as: `https://your-app.vercel.app/f/<token>`
 
 ## Admin Access
 

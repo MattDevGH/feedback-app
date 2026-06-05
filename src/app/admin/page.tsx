@@ -41,18 +41,25 @@ export default async function AdminPage({ searchParams }: Props) {
             <ul className="space-y-6">
               {submissions.map((submission) => (
                 <li key={submission.id} className="bg-white rounded-2xl shadow-sm p-6">
-                  <time
-                    dateTime={submission.submittedAt.toISOString()}
-                    className="text-xs text-gray-400 block mb-5"
-                  >
-                    {submission.submittedAt.toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </time>
+                  <div className="flex items-baseline justify-between mb-5">
+                    <time
+                      dateTime={submission.submittedAt.toISOString()}
+                      className="text-xs text-gray-400"
+                    >
+                      {submission.submittedAt.toLocaleDateString("en-GB", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </time>
+                    {submission.reviewerName && (
+                      <span className="text-xs font-medium text-gray-500">
+                        {submission.reviewerName}
+                      </span>
+                    )}
+                  </div>
 
                   <ul className="space-y-4">
                     {submission.responses.map((response) => {

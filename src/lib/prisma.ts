@@ -24,8 +24,21 @@ function createPrismaClient(): PrismaClient {
 }
 
 // Prevent multiple instances in development (hot reload)
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+// Store the connection string alongside the client so we can detect credential changes.
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient;
+  prismaUrl: string | undefined;
+};
+
+const currentUrl = process.env.POSTGRES_PRISMA_URL;
+if (globalForPrisma.prismaUrl !== currentUrl) {
+  // Connection string changed (e.g. password rotation) — create a fresh client
+  globalForPrisma.prisma = undefined as unknown as PrismaClient;
+}
 
 export const prisma = globalForPrisma.prisma || createPrismaClient();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaUrl = currentUrl;
+}

@@ -11,20 +11,28 @@ async function fillMandatoryQuestions(user: ReturnType<typeof userEvent.setup>) 
     "Slow to make decisions",
   );
   await user.type(
-    screen.getByLabelText(/what should this person start doing/i),
+    screen.getByLabelText(/what should this person start doing or do more of/i),
     "Seek feedback more regularly",
   );
 }
 
 describe("Feedback form", () => {
-  it("renders all six questions", () => {
+  it("renders all nine questions", () => {
     render(<Home />);
+    // Continue (praise)
     expect(screen.getByLabelText(/what does this person do well/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/describe a specific example/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/what should this person continue doing/i)).toBeInTheDocument();
+    // Stop (criticism)
     expect(screen.getByLabelText(/what does this person struggle with/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/handled things better/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/what should this person start doing/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/stop doing or do less of/i)).toBeInTheDocument();
+    // Start (suggestion)
+    expect(
+      screen.getByLabelText(/what should this person start doing or do more of/i),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText(/skill or behaviour/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/what should this person start doing\?/i)).toBeInTheDocument();
   });
 
   it("submit button is disabled when form is empty", () => {
@@ -37,7 +45,6 @@ describe("Feedback form", () => {
     render(<Home />);
 
     await user.type(screen.getByLabelText(/what does this person do well/i), "Good listener");
-    // criticism and suggestion still empty
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeDisabled();
   });
 
@@ -83,13 +90,13 @@ describe("Feedback form", () => {
     const user = userEvent.setup();
     render(<Home />);
 
-    // Initially all sections incomplete
-    expect(screen.getByLabelText(/praise: incomplete/i)).toBeInTheDocument();
+    // Initially all sections show "Continue: incomplete"
+    expect(screen.getByLabelText(/continue: incomplete/i)).toBeInTheDocument();
 
     await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");
 
     await waitFor(() => {
-      expect(screen.getByLabelText(/praise: complete/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/continue: complete/i)).toBeInTheDocument();
     });
   });
 });

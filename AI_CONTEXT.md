@@ -140,7 +140,9 @@ No other files need to change.
 - If mandatory questions exist in a section → all must be answered
 - If no mandatory questions exist → at least one must be answered
 
-Current questions: praise-1 (mandatory), praise-2, criticism-1 (mandatory), criticism-2, suggestion-1 (mandatory), suggestion-2
+Current questions: praise-1 (mandatory), praise-2, praise-3, criticism-1 (mandatory), criticism-2, criticism-3, suggestion-1 (mandatory), suggestion-2, suggestion-3
+
+User-facing labels use **stop/start/continue** framing (not praise/criticism/suggestion) — it's more action-oriented and less awkward for the person giving feedback.
 
 ---
 

@@ -3,8 +3,12 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
+// Provider is set to postgresql for the generated client.
+// Locally, the SQLite adapter in src/lib/prisma.ts overrides the connection at runtime.
+// The schema provider must match the production database type for correct query generation.
+// Run migrations locally with DATABASE_PROVIDER override — see prisma.config.ts.
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 // A single submission from one reviewer.

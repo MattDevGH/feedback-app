@@ -242,6 +242,7 @@ Write tests before or alongside implementation. For API routes, validation logic
 - Proxy fails closed — if ADMIN_SECRET_KEY is unset, access is denied
 - Admin page is a server component — reads DB directly
 - Feedback IDs use cuid() — suitable for future unique-link-per-reviewer feature
+- Reviewer name shown in admin view — derived from the linked ReviewToken, not stored on FeedbackSubmission directly
 
 ---
 

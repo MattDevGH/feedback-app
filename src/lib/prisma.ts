@@ -1,6 +1,6 @@
 import { PrismaClient } from "@/generated/prisma";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { neonConfig, Pool } from "@neondatabase/serverless";
+import { neonConfig } from "@neondatabase/serverless";
 
 // Provide a WebSocket implementation in Node.js environments (local dev).
 // Vercel serverless has globalThis.WebSocket natively.
@@ -19,8 +19,7 @@ function createPrismaClient(): PrismaClient {
     );
   }
 
-  const pool = new Pool({ connectionString });
-  const adapter = new PrismaNeon(pool);
+  const adapter = new PrismaNeon({ connectionString });
   return new PrismaClient({ adapter });
 }
 

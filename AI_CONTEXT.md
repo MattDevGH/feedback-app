@@ -31,6 +31,7 @@ Code should read like well-written prose (Feathers). Follow Clean Code (Robert C
 - **No duplication** — shared logic (e.g. `validateSubmission`, `isSectionComplete`) is defined once and imported where needed. MSW handlers reuse the same validation as the real API.
 - **Names tell the truth** — files, functions, variables should make the code self-documenting
 - **Extract, don't inline** — if logic requires a comment to explain, extract it into a named function instead
+- **Delete, don't leave** — remove dead code, empty directories, and unused template scaffolding immediately. Don't leave them for later cleanup.
 - **Zod for validation** — declarative schemas replace manual type-checking. No `as` casts for untrusted input.
 - **Prettier enforced** — formatting is never a discussion. Pre-commit hook ensures consistency.
 

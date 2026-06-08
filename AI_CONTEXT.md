@@ -202,7 +202,7 @@ To rotate: generate a new value, update `.env.local` and the Vercel env var.
 
 ## Local Development
 
-Local dev connects to the same Neon Postgres database via `POSTGRES_PRISMA_URL` in `.env.local`.
+Local dev connects to a separate `feedback_dev` database on the same Neon instance via `POSTGRES_PRISMA_URL` in `.env.local`. Production uses `neondb` (injected by Vercel's Neon integration). Test data stays isolated.
 
 **For fully offline development**, use a local Postgres container:
 

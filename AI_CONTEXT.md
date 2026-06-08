@@ -162,7 +162,7 @@ Categories: `praise` (continue), `criticism` (stop), `suggestion` (start), `gene
 - If no mandatory questions exist → at least one must be answered
 - `general` category is excluded from section completion
 
-Current questions: 6 praise, 4 criticism, 5 suggestion, 1 general (all optional; at least one per section required)
+Current questions: 6 praise, 4 criticism, 4 suggestion, 1 general (all optional; at least one per section required)
 
 User-facing labels use **stop/start/continue** framing. General has neutral grey styling.
 Questions are grouped by section and shown as collapsible items — textarea appears on click.

@@ -139,18 +139,10 @@ export const QUESTIONS: Question[] = [
   {
     key: "suggestion-3",
     category: "suggestion",
-    text: `What should ${name} start doing?`,
-    placeholder: "e.g. delegating more, saying no, celebrating team wins\u2026",
+    text: `What training, experience, or exposure would help ${name} grow?`,
+    placeholder: "e.g. leading a cross-team project, presenting to senior stakeholders\u2026",
     mandatory: false,
     displayOrder: 13,
-  },
-  {
-    key: "suggestion-4",
-    category: "suggestion",
-    text: `What should ${name} start doing or do more of?`,
-    placeholder: "e.g. seek feedback more regularly, share context earlier\u2026",
-    mandatory: false,
-    displayOrder: 14,
   },
   {
     key: "suggestion-5",
@@ -158,7 +150,7 @@ export const QUESTIONS: Question[] = [
     text: `What doesn't ${name} do that ${PROFILE.pronouns.subject} should start doing?`,
     placeholder: "e.g. proactively sharing updates, mentoring others\u2026",
     mandatory: false,
-    displayOrder: 15,
+    displayOrder: 14,
   },
 
   // General — uncategorised, not part of section completion
@@ -169,7 +161,7 @@ export const QUESTIONS: Question[] = [
     placeholder:
       "Anything else you'd like to share \u2014 positive, constructive, or otherwise\u2026",
     mandatory: false,
-    displayOrder: 16,
+    displayOrder: 15,
   },
 ];
 

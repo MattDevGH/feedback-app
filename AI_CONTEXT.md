@@ -113,6 +113,8 @@ prisma/
   schema.prisma           # ReviewToken + FeedbackSubmission + FeedbackResponse (PostgreSQL)
   migrations/             # Postgres migrations
 prisma.config.ts          # Prisma CLI config (datasource URL)
+scripts/
+  clear-db.js            # Utility: wipes all data from the connected database
 .env.local                # ADMIN_SECRET_KEY + POSTGRES_PRISMA_URL (gitignored)
 .env.example              # Template (committed, no real values)
 ```

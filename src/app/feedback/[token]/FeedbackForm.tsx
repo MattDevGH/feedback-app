@@ -162,13 +162,13 @@ function AnonymousConfirmView({
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
           <p className="text-sm text-amber-800 mb-2">
             <strong>How this works:</strong> Your feedback will be emailed to{" "}
-            {PROFILE.lineManager.name}, who will collate and share it with {PROFILE.name} without
-            reference to your identity.
+            {PROFILE.lineManager.fullName}, who will collate and share it with {PROFILE.name}{" "}
+            without reference to your identity.
           </p>
           <p className="text-sm text-amber-800 mb-2">
             This is <strong>indirect</strong> rather than truly anonymous &mdash;{" "}
-            {PROFILE.lineManager.name} will know the feedback came via this app, but {PROFILE.name}{" "}
-            won&apos;t know who submitted it.
+            {PROFILE.lineManager.firstName} will know the feedback came via this app, but{" "}
+            {PROFILE.name} won&apos;t know who submitted it.
           </p>
           <p className="text-xs text-amber-700">
             &#9888;&#65039; Your responses will not be saved in the app. Once you confirm below, you
@@ -186,9 +186,10 @@ function AnonymousConfirmView({
           readOnly
           rows={10}
           value={feedbackSummary}
-          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 bg-gray-50 resize-none mb-6 font-mono"
+          className="w-full rounded-lg border border-gray-200 px-4 py-3 text-sm text-gray-700 bg-gray-50 resize-none mb-2 font-mono"
           onClick={(e) => (e.target as HTMLTextAreaElement).select()}
         />
+        <CopyButton text={feedbackSummary} />
 
         {contentTooLong && (
           <p className="text-xs text-gray-500 mb-4">
@@ -295,6 +296,26 @@ function SectionIndicators({ answers }: { answers: Record<string, string> }) {
   );
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="text-xs text-indigo-600 hover:text-indigo-800 font-medium mb-6"
+    >
+      {copied ? "Copied!" : "Copy to clipboard"}
+    </button>
+  );
+}
+
 function buildFeedbackSummary(answers: Record<string, string>): string {
   const lines: string[] = [];
   for (const question of orderedQuestions) {
@@ -309,8 +330,8 @@ function buildMailtoUrl(summary: string): string {
   const subject = `Anonymous feedback for ${PROFILE.name}`;
   const contentFits = summary.length <= MAILTO_SAFE_LENGTH;
   const body = contentFits
-    ? `Hi ${PROFILE.lineManager.name},\n\nPlease share this feedback with ${PROFILE.name} without revealing my identity.\n\n${summary}\nThank you.`
-    : `Hi ${PROFILE.lineManager.name},\n\nSomeone has submitted anonymous feedback for ${PROFILE.name} via the feedback app.\n\nPlease paste the feedback content here (it was too long to include automatically):\n\n[PASTE FEEDBACK HERE]\n\nPlease share this with ${PROFILE.name} without revealing who submitted it.\n\nThank you.`;
+    ? `Hi ${PROFILE.lineManager.firstName},\n\nI am submitting anonymous feedback for ${PROFILE.name} via the feedback app.\n\nPlease share this feedback with ${PROFILE.name} without revealing my identity.\n\n${summary}\nThank you.`
+    : `Hi ${PROFILE.lineManager.firstName},\n\nI am submitting anonymous feedback for ${PROFILE.name} via the feedback app.\n\n[PASTE FEEDBACK HERE]\n\nPlease share this with ${PROFILE.name} without revealing my identity.\n\nThank you.`;
 
   return `mailto:${PROFILE.lineManager.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

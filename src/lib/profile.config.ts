@@ -9,7 +9,8 @@ export const PROFILE = {
     possessive: "his", // his / her / their
   },
   lineManager: {
-    name: "Line Manager", // Replace with actual name
-    email: "linemanager@example.com", // Replace with actual email
+    firstName: "Jan",
+    fullName: "Jan Krishnalingham",
+    email: "linemanager@example.com", // Replace with actual email when ready
   },
 } as const;

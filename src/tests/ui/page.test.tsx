@@ -6,13 +6,13 @@ import LandingPage from "@/app/page";
 
 // Helper: fill all mandatory questions to make the form submittable
 async function fillMandatoryQuestions(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");
   await user.type(
-    screen.getByLabelText(/what does this person struggle with/i),
-    "Slow to make decisions",
+    screen.getByLabelText(/what are some things matt does well/i),
+    "Great communicator",
   );
+  await user.type(screen.getByLabelText(/what does matt struggle with/i), "Slow to make decisions");
   await user.type(
-    screen.getByLabelText(/what should this person start doing or do more of/i),
+    screen.getByLabelText(/what skills or behaviours should matt build on/i),
     "Seek feedback more regularly",
   );
 }
@@ -25,19 +25,18 @@ describe("Landing page", () => {
 });
 
 describe("Feedback form", () => {
-  it("renders all nine questions", () => {
+  it("renders mandatory questions with full textareas", () => {
     render(<FeedbackForm token="test-token-123" />);
-    expect(screen.getByLabelText(/what does this person do well/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/describe a specific example/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/what should this person continue doing/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/what does this person struggle with/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/handled things better/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/stop doing or do less of/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/what are some things matt does well/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/what does matt struggle with/i)).toBeInTheDocument();
     expect(
-      screen.getByLabelText(/what should this person start doing or do more of/i),
+      screen.getByLabelText(/what skills or behaviours should matt build on/i),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/skill or behaviour/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/what should this person start doing\?/i)).toBeInTheDocument();
+  });
+
+  it("renders the general feedback question", () => {
+    render(<FeedbackForm token="test-token-123" />);
+    expect(screen.getByLabelText(/any other feedback for matt/i)).toBeInTheDocument();
   });
 
   it("submit button is disabled when form is empty", () => {
@@ -49,7 +48,7 @@ describe("Feedback form", () => {
     const user = userEvent.setup();
     render(<FeedbackForm token="test-token-123" />);
 
-    await user.type(screen.getByLabelText(/what does this person do well/i), "Good listener");
+    await user.type(screen.getByLabelText(/what are some things matt does well/i), "Good listener");
     expect(screen.getByRole("button", { name: /submit feedback/i })).toBeDisabled();
   });
 
@@ -98,7 +97,10 @@ describe("Feedback form", () => {
 
     expect(screen.getByLabelText(/continue: incomplete/i)).toBeInTheDocument();
 
-    await user.type(screen.getByLabelText(/what does this person do well/i), "Great communicator");
+    await user.type(
+      screen.getByLabelText(/what are some things matt does well/i),
+      "Great communicator",
+    );
 
     await waitFor(() => {
       expect(screen.getByLabelText(/continue: complete/i)).toBeInTheDocument();

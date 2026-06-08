@@ -92,6 +92,7 @@ src/
       memory-token.repository.ts     # In-memory implementation (tests)
       index.ts                       # Factory: getFeedbackRepository(), getTokenRepository()
     questions.config.ts              # Static question bank + section completion logic
+    profile.config.ts               # Name + pronouns for personalising questions
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
   tests/
@@ -146,17 +147,20 @@ model FeedbackResponse {
 
 ## Question Config
 
-Questions live in `src/lib/questions.config.ts`. Edit this file to change questions.
-No other files need to change.
+Questions live in `src/lib/questions.config.ts`, personalised via `src/lib/profile.config.ts`.
+Edit these files to change questions or recipient identity. No other files need to change.
+
+Categories: `praise` (continue), `criticism` (stop), `suggestion` (start), `general` (uncategorised).
 
 **Section completion rule:**
 
 - If mandatory questions exist in a section → all must be answered
 - If no mandatory questions exist → at least one must be answered
+- `general` category is excluded from section completion
 
-Current questions: praise-1 (mandatory), praise-2, praise-3, criticism-1 (mandatory), criticism-2, criticism-3, suggestion-1 (mandatory), suggestion-2, suggestion-3
+Current questions: 5 praise (1 mandatory), 3 criticism (1 mandatory), 4 suggestion (1 mandatory), 1 general
 
-User-facing labels use **stop/start/continue** framing (not praise/criticism/suggestion) — it's more action-oriented and less awkward for the person giving feedback.
+User-facing labels use **stop/start/continue** framing. General has neutral grey styling.
 
 ---
 

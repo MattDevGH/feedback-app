@@ -61,6 +61,8 @@ src/
     api/
       feedback/
         route.ts          # POST (submit, token-validated) + GET (list all, key-protected)
+        anonymous/
+          route.ts        # POST (mark token as anonymously used, no submission stored)
       tokens/
         route.ts          # POST (create token) + GET (list tokens) — admin-protected
     admin/
@@ -92,7 +94,7 @@ src/
       memory-token.repository.ts     # In-memory implementation (tests)
       index.ts                       # Factory: getFeedbackRepository(), getTokenRepository()
     questions.config.ts              # Static question bank + section completion logic
-    profile.config.ts               # Name + pronouns for personalising questions
+    profile.config.ts               # Name, pronouns, and line manager email for personalisation
   generated/
     prisma/               # Auto-generated Prisma client (gitignored)
   tests/
@@ -168,12 +170,13 @@ User-facing labels use **stop/start/continue** framing. General has neutral grey
 
 ## API
 
-| Method | Path          | Auth      | Description                                                  |
-| ------ | ------------- | --------- | ------------------------------------------------------------ |
-| POST   | /api/feedback | token     | Submit feedback. Requires valid token + Zod + section rules. |
-| GET    | /api/feedback | admin key | Return all submissions with responses.                       |
-| POST   | /api/tokens   | admin key | Create a new review token (name + optional expiry).          |
-| GET    | /api/tokens   | admin key | List all tokens with their status.                           |
+| Method | Path                    | Auth      | Description                                                  |
+| ------ | ----------------------- | --------- | ------------------------------------------------------------ |
+| POST   | /api/feedback           | token     | Submit feedback. Requires valid token + Zod + section rules. |
+| POST   | /api/feedback/anonymous | token     | Mark token as anonymously used (no submission stored).       |
+| GET    | /api/feedback           | admin key | Return all submissions with responses.                       |
+| POST   | /api/tokens             | admin key | Create a new review token (name + optional expiry).          |
+| GET    | /api/tokens             | admin key | List all tokens with their status.                           |
 
 ---
 
@@ -250,6 +253,9 @@ Write tests before or alongside implementation. For API routes, validation logic
 - Admin page is a server component — reads DB directly
 - Feedback IDs use cuid() — suitable for future unique-link-per-reviewer feature
 - Reviewer name shown in admin view — derived from the linked ReviewToken, not stored on FeedbackSubmission directly
+- Anonymous submissions don't store feedback in DB — only marks token as used. Feedback goes exclusively via email to line manager.
+- Revisiting a used token: normal submissions show read-only answers; anonymous shows confirmation date only
+- Token `status` field (`pending | submitted | anonymous`) replaces inferring state from `submissionId` nullability
 
 ---
 
@@ -257,7 +263,6 @@ Write tests before or alongside implementation. For API routes, validation logic
 
 - [ ] Free-form unprompted feedback — a "say something else" section where the user writes freely and selects a category (continue/stop/start). Stored as `freeform-praise`, `freeform-criticism`, or `freeform-suggestion` question keys. No schema change needed.
 - [ ] Collapsible optional questions — mandatory questions shown as full cards with textarea visible; optional questions grouped as a compact clickable list that expands on selection. Reduces visual overwhelm.
-- [ ] Anonymous submission option — "submit anonymously" checkbox; presents a mailto link to line manager with feedback content pre-filled. App records submission as anonymous (no token correlation in admin view). Explanatory text describes what "anonymous" means in this context.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)
 - [ ] Request an invite — public landing page allows visitors to submit their email to request access. Admin approves/rejects requests and issues tokens.

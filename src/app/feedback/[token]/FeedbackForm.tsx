@@ -108,7 +108,7 @@ export default function FeedbackForm({ token }: { token: string }) {
             disabled={status === "submitting" || !isReady}
             className="w-full bg-indigo-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {status === "submitting" ? "Submitting…" : "Submit feedback"}
+            {status === "submitting" ? "Submitting\u2026" : "Submit feedback"}
           </button>
 
           {isReady && (
@@ -117,7 +117,7 @@ export default function FeedbackForm({ token }: { token: string }) {
               onClick={() => setView("anonymous-confirm")}
               className="w-full mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Or submit anonymously →
+              Or submit anonymously \u2192
             </button>
           )}
         </form>
@@ -137,18 +137,18 @@ function AnonymousConfirmView({
   onBack: () => void;
   onDone: () => void;
 }) {
+  const [confirming, setConfirming] = useState(false);
   const feedbackSummary = buildFeedbackSummary(answers);
   const mailtoUrl = buildMailtoUrl(feedbackSummary);
   const contentTooLong = feedbackSummary.length > MAILTO_SAFE_LENGTH;
 
-  async function handleMailtoClick() {
-    // Mark the token as anonymously used
+  async function handleConfirmSent() {
+    setConfirming(true);
     await fetch("/api/feedback/anonymous", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
     });
-    // Clear localStorage draft
     localStorage.removeItem(`feedback-draft-${token}`);
     onDone();
   }
@@ -165,13 +165,14 @@ function AnonymousConfirmView({
             reference to your identity.
           </p>
           <p className="text-sm text-amber-800 mb-2">
-            This is <strong>indirect</strong> rather than truly anonymous —{" "}
+            This is <strong>indirect</strong> rather than truly anonymous &mdash;{" "}
             {PROFILE.lineManager.name} will know the feedback came via this app, but {PROFILE.name}{" "}
-            won't know who submitted it.
+            won&apos;t know who submitted it.
           </p>
           <p className="text-xs text-amber-700">
-            ⚠️ Your responses will not be saved in the app. Once you proceed, you won't be able to
-            return here to view them. Refer to your sent email or save a copy below.
+            &#9888;&#65039; Your responses will not be saved in the app. Once you confirm below, you
+            won&apos;t be able to return here to view them. Refer to your sent email or save a copy
+            below.
           </p>
         </div>
 
@@ -195,19 +196,32 @@ function AnonymousConfirmView({
           </p>
         )}
 
+        {/* Step 1: Open email (can be clicked multiple times) */}
         <a
           href={mailtoUrl}
-          onClick={handleMailtoClick}
-          className="block w-full text-center bg-indigo-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          className="block w-full text-center bg-indigo-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors mb-3"
         >
           {contentTooLong ? "Open email (paste feedback yourself)" : "Open email with feedback"}
         </a>
 
+        {/* Step 2: Confirm sent */}
+        <button
+          type="button"
+          onClick={handleConfirmSent}
+          disabled={confirming}
+          className="w-full text-sm font-medium py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+        >
+          {confirming ? "Finalising\u2026" : "I\u2019ve sent it \u2014 finalise my submission"}
+        </button>
+        <p className="text-xs text-gray-400 text-center mt-2">
+          This will end your session and wipe your draft responses.
+        </p>
+
         <button
           onClick={onBack}
-          className="w-full mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+          className="w-full mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
-          ← Go back to form
+          \u2190 Go back to form
         </button>
       </div>
     </main>
@@ -219,13 +233,14 @@ function AnonymousDone() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm p-8 text-center">
         <div className="text-4xl mb-4" aria-hidden="true">
-          🙏
+          &#128591;
         </div>
         <h1 className="text-2xl font-semibold text-gray-800 mb-2">Thank you!</h1>
-        <p className="text-gray-500 mb-2">
-          Please send the email that just opened in your email client.
+        <p className="text-gray-500 mb-2">Your anonymous feedback has been finalised.</p>
+        <p className="text-xs text-gray-400">
+          Please ensure you send the email if you haven&apos;t already. Your feedback has not been
+          stored in the app.
         </p>
-        <p className="text-xs text-gray-400">Your feedback has not been stored in the app.</p>
       </div>
     </main>
   );
@@ -236,7 +251,7 @@ function ThankYou() {
     <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm p-8 text-center">
         <div className="text-4xl mb-4" aria-hidden="true">
-          🙏
+          &#128591;
         </div>
         <h1 className="text-2xl font-semibold text-gray-800 mb-2">Thank you!</h1>
         <p className="text-gray-500">
@@ -261,7 +276,7 @@ function SectionIndicators({ answers }: { answers: Record<string, string> }) {
             }`}
             aria-label={`${categoryStyle.label}: ${complete ? "complete" : "incomplete"}`}
           >
-            <span aria-hidden="true">{complete ? "✓" : "○"}</span>
+            <span aria-hidden="true">{complete ? "\u2713" : "\u25CB"}</span>
             {categoryStyle.label}
           </span>
         );

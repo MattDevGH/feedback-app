@@ -27,18 +27,62 @@ export default async function AdminPage({ searchParams }: Props) {
         {/* Feedback submissions */}
         <section>
           <h2 className="text-lg font-semibold text-gray-800 mb-1">Feedback</h2>
-          <p className="text-sm text-gray-500 mb-6">
-            {submissions.length === 0
-              ? "No feedback yet."
-              : `${submissions.length} submission${submissions.length === 1 ? "" : "s"}`}
-          </p>
+          {(() => {
+            const anonymousTokens = tokens.filter((t) => t.status === "anonymous");
+            const totalCount = submissions.length + anonymousTokens.length;
+            return (
+              <p className="text-sm text-gray-500 mb-6">
+                {totalCount === 0
+                  ? "No feedback yet."
+                  : `${totalCount} submission${totalCount === 1 ? "" : "s"}`}
+              </p>
+            );
+          })()}
 
-          {submissions.length === 0 ? (
+          {submissions.length === 0 &&
+          tokens.filter((t) => t.status === "anonymous").length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm p-8 text-center text-gray-400 text-sm">
               Feedback submitted via the form will appear here.
             </div>
           ) : (
             <ul className="space-y-6">
+              {/* Anonymous submissions */}
+              {tokens
+                .filter((t) => t.status === "anonymous")
+                .map((token) => (
+                  <li key={token.id} className="bg-white rounded-2xl shadow-sm p-6">
+                    <div className="flex items-baseline justify-between mb-3">
+                      <div>
+                        <p className="text-xs text-gray-400">
+                          Created{" "}
+                          {new Date(token.createdAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                          {token.usedAt && (
+                            <>
+                              {" · Submitted "}
+                              {new Date(token.usedAt).toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </>
+                          )}
+                        </p>
+                      </div>
+                      <span className="text-xs font-medium text-purple-700">{token.name}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 italic">
+                      Submitted anonymously — feedback was emailed to line manager.
+                    </p>
+                  </li>
+                ))}
+
+              {/* Normal submissions */}
               {submissions.map((submission) => (
                 <li key={submission.id} className="bg-white rounded-2xl shadow-sm p-6">
                   <div className="flex items-baseline justify-between mb-5">

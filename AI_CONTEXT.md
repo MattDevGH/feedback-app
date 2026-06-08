@@ -162,9 +162,10 @@ Categories: `praise` (continue), `criticism` (stop), `suggestion` (start), `gene
 - If no mandatory questions exist → at least one must be answered
 - `general` category is excluded from section completion
 
-Current questions: 5 praise (1 mandatory), 3 criticism (1 mandatory), 4 suggestion (1 mandatory), 1 general
+Current questions: 6 praise, 4 criticism, 5 suggestion, 1 general (all optional; at least one per section required)
 
 User-facing labels use **stop/start/continue** framing. General has neutral grey styling.
+Questions are grouped by section and shown as collapsible items — textarea appears on click.
 
 ---
 
@@ -262,7 +263,6 @@ Write tests before or alongside implementation. For API routes, validation logic
 ## Outstanding / Planned Work
 
 - [ ] Free-form unprompted feedback — a "say something else" section where the user writes freely and selects a category (continue/stop/start). Stored as `freeform-praise`, `freeform-criticism`, or `freeform-suggestion` question keys. No schema change needed.
-- [ ] Collapsible optional questions — mandatory questions shown as full cards with textarea visible; optional questions grouped as a compact clickable list that expands on selection. Reduces visual overwhelm.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)
 - [ ] Request an invite — public landing page allows visitors to submit their email to request access. Admin approves/rejects requests and issues tokens.

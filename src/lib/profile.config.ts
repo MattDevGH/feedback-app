@@ -8,4 +8,8 @@ export const PROFILE = {
     object: "him", // him / her / them
     possessive: "his", // his / her / their
   },
+  lineManager: {
+    name: "Line Manager", // Replace with actual name
+    email: "linemanager@example.com", // Replace with actual email
+  },
 } as const;

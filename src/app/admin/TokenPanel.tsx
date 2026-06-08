@@ -51,8 +51,11 @@ export default function TokenPanel({ tokens: initialTokens, adminKey }: Props) {
   }
 
   function getStatus(token: ReviewToken): { label: string; style: string } {
-    if (token.submissionId) {
+    if (token.status === "submitted") {
       return { label: "Submitted", style: "bg-emerald-100 text-emerald-700" };
+    }
+    if (token.status === "anonymous") {
+      return { label: "Anonymous", style: "bg-purple-100 text-purple-700" };
     }
     if (token.expiresAt && new Date(token.expiresAt) < new Date()) {
       return { label: "Expired", style: "bg-gray-100 text-gray-500" };
@@ -110,7 +113,7 @@ export default function TokenPanel({ tokens: initialTokens, adminKey }: Props) {
                     {status.label}
                   </span>
 
-                  {!token.submissionId && (
+                  {token.status === "pending" && (
                     <button
                       onClick={() => copyLink(token)}
                       className="text-xs text-indigo-600 hover:text-indigo-800 font-medium focus:outline-none"

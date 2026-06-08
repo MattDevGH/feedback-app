@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid or unknown token." }, { status: 403 });
   }
 
-  if (reviewToken.submissionId) {
+  if (reviewToken.status !== "pending") {
     return NextResponse.json({ error: "This link has already been used." }, { status: 409 });
   }
 

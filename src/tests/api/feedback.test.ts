@@ -42,7 +42,9 @@ describe("POST /api/feedback", () => {
         id: "tok-1",
         token: VALID_TOKEN,
         name: "Alice",
+        status: "pending",
         createdAt: new Date(),
+        usedAt: null,
         expiresAt: null,
         submissionId: null,
       },
@@ -64,6 +66,7 @@ describe("POST /api/feedback", () => {
   it("marks the token as submitted", async () => {
     await POST(makeRequest(validPayload));
     const token = await tokenRepo.findByToken(VALID_TOKEN);
+    expect(token?.status).toBe("submitted");
     expect(token?.submissionId).not.toBeNull();
   });
 
@@ -108,7 +111,9 @@ describe("POST /api/feedback", () => {
         id: "tok-expired",
         token: "expired-token",
         name: "Bob",
+        status: "pending",
         createdAt: new Date("2025-01-01"),
+        usedAt: null,
         expiresAt: new Date("2025-06-01"), // already expired
         submissionId: null,
       },

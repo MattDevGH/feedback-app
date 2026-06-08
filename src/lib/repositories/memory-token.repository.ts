@@ -13,7 +13,9 @@ export class MemoryTokenRepository implements TokenRepository {
       id: `mem-tok-${this.store.length + 1}`,
       token: crypto.randomBytes(32).toString("hex"),
       name: data.name,
+      status: "pending",
       createdAt: new Date(),
+      usedAt: null,
       expiresAt: data.expiresAt ?? null,
       submissionId: null,
     };
@@ -28,7 +30,17 @@ export class MemoryTokenRepository implements TokenRepository {
   async markSubmitted(token: string, submissionId: string): Promise<ReviewToken> {
     const found = this.store.find((t) => t.token === token);
     if (!found) throw new Error(`Token not found: ${token}`);
+    found.status = "submitted";
     found.submissionId = submissionId;
+    found.usedAt = new Date();
+    return found;
+  }
+
+  async markAnonymous(token: string): Promise<ReviewToken> {
+    const found = this.store.find((t) => t.token === token);
+    if (!found) throw new Error(`Token not found: ${token}`);
+    found.status = "anonymous";
+    found.usedAt = new Date();
     return found;
   }
 

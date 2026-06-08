@@ -117,7 +117,7 @@ export default function FeedbackForm({ token }: { token: string }) {
               onClick={() => setView("anonymous-confirm")}
               className="w-full mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
-              Or submit anonymously \u2192
+              {"Or submit anonymously \u2192"}
             </button>
           )}
         </form>
@@ -138,6 +138,7 @@ function AnonymousConfirmView({
   onDone: () => void;
 }) {
   const [confirming, setConfirming] = useState(false);
+  const [mailtoClicked, setMailtoClicked] = useState(false);
   const feedbackSummary = buildFeedbackSummary(answers);
   const mailtoUrl = buildMailtoUrl(feedbackSummary);
   const contentTooLong = feedbackSummary.length > MAILTO_SAFE_LENGTH;
@@ -199,19 +200,28 @@ function AnonymousConfirmView({
         {/* Step 1: Open email (can be clicked multiple times) */}
         <a
           href={mailtoUrl}
+          onClick={() => setMailtoClicked(true)}
           className="block w-full text-center bg-indigo-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors mb-3"
         >
           {contentTooLong ? "Open email (paste feedback yourself)" : "Open email with feedback"}
         </a>
 
-        {/* Step 2: Confirm sent */}
+        {/* Step 2: Confirm sent — only active after mailto has been clicked */}
         <button
           type="button"
           onClick={handleConfirmSent}
-          disabled={confirming}
-          className="w-full text-sm font-medium py-2.5 px-4 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors"
+          disabled={!mailtoClicked || confirming}
+          className={`w-full text-sm font-medium py-2.5 px-4 rounded-lg border focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors ${
+            mailtoClicked && !confirming
+              ? "border-indigo-600 text-indigo-700 bg-indigo-50 hover:bg-indigo-100"
+              : "border-gray-200 text-gray-400 bg-gray-50 cursor-not-allowed"
+          }`}
         >
-          {confirming ? "Finalising\u2026" : "I\u2019ve sent it \u2014 finalise my submission"}
+          {confirming
+            ? "Finalising\u2026"
+            : mailtoClicked
+              ? "I\u2019ve sent it \u2014 finalise my submission"
+              : "Send the email first to enable this button"}
         </button>
         <p className="text-xs text-gray-400 text-center mt-2">
           This will end your session and wipe your draft responses.
@@ -221,7 +231,7 @@ function AnonymousConfirmView({
           onClick={onBack}
           className="w-full mt-4 text-xs text-gray-400 hover:text-gray-600 transition-colors"
         >
-          \u2190 Go back to form
+          {"\u2190 Go back to form"}
         </button>
       </div>
     </main>
@@ -299,8 +309,8 @@ function buildMailtoUrl(summary: string): string {
   const subject = `Anonymous feedback for ${PROFILE.name}`;
   const contentFits = summary.length <= MAILTO_SAFE_LENGTH;
   const body = contentFits
-    ? `Hi ${PROFILE.lineManager.name},\n\nPlease find anonymous feedback for ${PROFILE.name} below:\n\n${summary}\nPlease share this with ${PROFILE.name} without reference to who submitted it.\n\nThank you.`
-    : `Hi ${PROFILE.lineManager.name},\n\nSomeone has submitted anonymous feedback for ${PROFILE.name} via the feedback app.\n\nPlease paste the feedback content here (it was too long to include automatically):\n\n[PASTE FEEDBACK HERE]\n\nPlease share this with ${PROFILE.name} without reference to who submitted it.\n\nThank you.`;
+    ? `Hi ${PROFILE.lineManager.name},\n\nPlease share this feedback with ${PROFILE.name} without revealing my identity.\n\n${summary}\nThank you.`
+    : `Hi ${PROFILE.lineManager.name},\n\nSomeone has submitted anonymous feedback for ${PROFILE.name} via the feedback app.\n\nPlease paste the feedback content here (it was too long to include automatically):\n\n[PASTE FEEDBACK HERE]\n\nPlease share this with ${PROFILE.name} without revealing who submitted it.\n\nThank you.`;
 
   return `mailto:${PROFILE.lineManager.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

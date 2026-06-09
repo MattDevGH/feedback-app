@@ -123,14 +123,14 @@ function AnonymousConfirmView({
 
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
           <p className="text-sm text-amber-800 mb-2">
-            <strong>How this works:</strong> Your feedback will be emailed to{" "}
-            {PROFILE.lineManager.fullName}, who will collate and share it with {PROFILE.name}{" "}
-            without reference to your identity.
+            <strong>How this works:</strong> Your feedback will be emailed to {PROFILE.name}&apos;s
+            line manager, {PROFILE.lineManager.fullName}, who will collate and share it with{" "}
+            {PROFILE.name} without reference to your identity.
           </p>
           <p className="text-sm text-amber-800 mb-2">
             This is <strong>indirect</strong> rather than truly anonymous &mdash;{" "}
-            {PROFILE.lineManager.firstName} will know the feedback came via this app, but{" "}
-            {PROFILE.name} won&apos;t know who submitted it.
+            {PROFILE.lineManager.firstName} will see the email address you use to send the feedback,
+            but {PROFILE.name + " "} won&apos;t know who submitted it.
           </p>
           <p className="text-xs text-amber-700">
             &#9888;&#65039; Your responses will not be saved in the app. Once you confirm below, you

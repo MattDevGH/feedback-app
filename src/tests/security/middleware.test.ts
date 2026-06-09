@@ -31,6 +31,11 @@ describe("Admin middleware", () => {
       const res = await proxy(makeRequest("/"));
       expect(res.status).not.toBe(307);
     });
+
+    it("allows requests to /api/tokens/request without a key", async () => {
+      const res = await proxy(makeRequest("/api/tokens/request"));
+      expect(res.status).not.toBe(307);
+    });
   });
 
   describe("protected routes — /admin", () => {

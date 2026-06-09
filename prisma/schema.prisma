@@ -12,8 +12,9 @@ datasource db {
 model ReviewToken {
   id           String              @id @default(cuid())
   token        String              @unique
-  name         String // who it's for (admin's reference)
-  status       String              @default("pending") // "pending" | "submitted" | "anonymous"
+  name         String // who it's for (admin's reference or self-identified)
+  message      String? // optional message from requester explaining context
+  status       String              @default("pending") // "requested" | "pending" | "submitted" | "anonymous"
   createdAt    DateTime            @default(now())
   usedAt       DateTime? // when the token was consumed (submitted or anonymous)
   expiresAt    DateTime? // optional expiry

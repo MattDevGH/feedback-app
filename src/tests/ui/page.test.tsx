@@ -20,9 +20,11 @@ async function fillOncePerSection(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("Landing page", () => {
-  it("shows an invite-required message", () => {
+  it("shows the request form", () => {
     render(<LandingPage />);
-    expect(screen.getByText(/you need an invite link/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/your name or identifier/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/brief message/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /request to give feedback/i })).toBeInTheDocument();
   });
 });
 

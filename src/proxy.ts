@@ -8,6 +8,9 @@ const PROTECTED_PATHS = ["/admin", "/api/tokens"];
 export function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
+  // Public endpoints that live under otherwise-protected paths
+  if (pathname === "/api/tokens/request") return NextResponse.next();
+
   // GET /api/feedback is admin-protected; POST is public (token-validated)
   const isProtectedFeedbackGet = pathname === "/api/feedback" && request.method === "GET";
 

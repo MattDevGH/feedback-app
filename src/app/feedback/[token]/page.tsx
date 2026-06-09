@@ -18,6 +18,22 @@ export default async function ReviewPage({ params }: Props) {
     notFound();
   }
 
+  if (reviewToken.status === "requested") {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="max-w-lg w-full bg-white rounded-2xl shadow-sm p-8 text-center">
+          <div className="text-4xl mb-4" aria-hidden="true">
+            ⏳
+          </div>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-2">Being considered</h1>
+          <p className="text-gray-500">
+            Your offer to give feedback is still being reviewed. Please check back later.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
   if (reviewToken.status === "anonymous") {
     return <AnonymousConfirmation usedAt={reviewToken.usedAt!} />;
   }

@@ -17,16 +17,19 @@ Then open [http://localhost:3000](http://localhost:3000).
 
 ## Routes
 
-| Route                    | Description                                        |
-| ------------------------ | -------------------------------------------------- |
-| `/`                      | Landing page (directs users to use invite link)    |
-| `/feedback/[token]`      | Feedback form (token-validated, draft persistence) |
-| `/admin?key=`            | View all submitted feedback (requires admin key)   |
-| `/unauthorized`          | Shown when admin key is missing or wrong           |
-| `POST /api/feedback`     | Submit feedback (requires valid token in body)     |
-| `GET /api/feedback?key=` | Retrieve all submissions (requires admin key)      |
-| `POST /api/tokens?key=`  | Create a review token (requires admin key)         |
-| `GET /api/tokens?key=`   | List all tokens and status (requires admin key)    |
+| Route                                | Description                                        |
+| ------------------------------------ | -------------------------------------------------- |
+| `/`                                  | Request to give feedback (public form)             |
+| `/feedback/[token]`                  | Feedback form (token-validated, draft persistence) |
+| `/admin?key=`                        | View all submitted feedback (requires admin key)   |
+| `/unauthorized`                      | Shown when admin key is missing or wrong           |
+| `POST /api/feedback`                 | Submit feedback (requires valid token in body)     |
+| `POST /api/feedback/anonymous`       | Mark token as anonymous (requires token)           |
+| `GET /api/feedback?key=`             | Retrieve all submissions (requires admin key)      |
+| `POST /api/tokens?key=`              | Create a review token (requires admin key)         |
+| `GET /api/tokens?key=`               | List all tokens and status (requires admin key)    |
+| `POST /api/tokens/request`           | Request an invite (public, capped at 10)           |
+| `POST /api/tokens/[id]/approve?key=` | Approve a request (requires admin key)             |
 
 ## Generating Invite Links
 
@@ -90,5 +93,5 @@ Pre-commit hook runs lint-staged automatically.
 
 - Free-form unprompted feedback (user selects continue/stop/start category)
 - Email invites (auto-send invite link to a colleague's email)
-- Request an invite (visitors submit email, admin approves)
 - Additional question types (ratings, multiple choice)
+- Rate limiting on the public request endpoint

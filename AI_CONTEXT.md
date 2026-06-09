@@ -79,7 +79,7 @@ src/
     error.tsx             # Root error boundary
     unauthorized/
       page.tsx            # Shown when admin key is missing or wrong
-    page.tsx              # Landing page (directs to invite link)
+    page.tsx              # Request-an-invite form (public, client component)
     layout.tsx
     globals.css
   proxy.ts                # Protects /admin, /api/tokens, GET /api/feedback
@@ -176,13 +176,15 @@ Questions are grouped by section and shown as collapsible items — textarea app
 
 ## API
 
-| Method | Path                    | Auth      | Description                                                  |
-| ------ | ----------------------- | --------- | ------------------------------------------------------------ |
-| POST   | /api/feedback           | token     | Submit feedback. Requires valid token + Zod + section rules. |
-| POST   | /api/feedback/anonymous | token     | Mark token as anonymously used (no submission stored).       |
-| GET    | /api/feedback           | admin key | Return all submissions with responses.                       |
-| POST   | /api/tokens             | admin key | Create a new review token (name + optional expiry).          |
-| GET    | /api/tokens             | admin key | List all tokens with their status.                           |
+| Method | Path                     | Auth      | Description                                                  |
+| ------ | ------------------------ | --------- | ------------------------------------------------------------ |
+| POST   | /api/feedback            | token     | Submit feedback. Requires valid token + Zod + section rules. |
+| POST   | /api/feedback/anonymous  | token     | Mark token as anonymously used (no submission stored).       |
+| GET    | /api/feedback            | admin key | Return all submissions with responses.                       |
+| POST   | /api/tokens              | admin key | Create a new review token (name + optional expiry).          |
+| GET    | /api/tokens              | admin key | List all tokens with their status.                           |
+| POST   | /api/tokens/request      | none      | Public: request an invite (name + message, capped).          |
+| POST   | /api/tokens/[id]/approve | admin key | Approve a requested token (requested → pending).             |
 
 ---
 
@@ -190,7 +192,7 @@ Questions are grouped by section and shown as collapsible items — textarea app
 
 | Route             | Type   | Description                                                 |
 | ----------------- | ------ | ----------------------------------------------------------- |
-| /                 | Server | Landing page — directs users to use their invite link       |
+| /                 | Client | Request-an-invite form (public)                             |
 | /feedback/[token] | Server | Token-validated feedback form (draft saved to localStorage) |
 | /admin            | Server | View all submitted feedback (key-protected)                 |
 | /unauthorized     | Server | Shown when admin key is missing or incorrect                |
@@ -236,6 +238,8 @@ Write tests before or alongside implementation. For API routes, validation logic
 - api/feedback.test.ts: feedback submission route tests (token validation, section completion, edge cases)
 - api/tokens.test.ts: token creation and listing route tests
 - api/anonymous.test.ts: anonymous submission endpoint (all status codes: 200, 400, 403, 409, 410)
+- api/request-token.test.ts: request-an-invite endpoint (201, 400, 503)
+- api/approve-token.test.ts: approve token endpoint (200, 404, 409)
 - ui/page.test.tsx: landing page + feedback form UI tests (render, collapsed state, expand, submit, error, section indicators)
 - ui/accessibility.test.tsx: axe scans of landing page AND feedback form
 - security/headers.test.ts: security header config
@@ -271,4 +275,4 @@ Write tests before or alongside implementation. For API routes, validation logic
 - [ ] Free-form unprompted feedback — a "say something else" section where the user writes freely and selects a category (continue/stop/start). Stored as `freeform-praise`, `freeform-criticism`, or `freeform-suggestion` question keys. No schema change needed.
 - [ ] Additional question types (rating scales, multiple choice, etc.)
 - [ ] Email invites — generate a token in admin with a user's email address, send them an invite link automatically (requires email service e.g. Resend)
-- [ ] Request an invite — public landing page allows visitors to submit their email to request access. Admin approves/rejects requests and issues tokens.
+- [ ] Rate limiting / abuse protection on the public request endpoint — cap is in place (10 pending), but no IP-level throttling

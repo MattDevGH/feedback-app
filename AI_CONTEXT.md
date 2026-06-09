@@ -71,8 +71,9 @@ src/
       error.tsx           # Error boundary for admin page
     feedback/
       [token]/
-        page.tsx          # Server component — validates token, renders form or status
-        FeedbackForm.tsx  # Client component — the actual feedback form
+        page.tsx              # Server component — validates token, renders form or status
+        FeedbackForm.tsx      # Client component — collapsible question form
+        AnonymousConfirmView.tsx  # Client component — anonymous submission flow
     hooks/
       useFeedbackForm.ts  # Custom hook — form state, draft persistence, submission
     error.tsx             # Root error boundary
@@ -119,6 +120,10 @@ scripts/
   clear-db.js            # Utility: wipes all data from the connected database
 .env.local                # ADMIN_SECRET_KEY + POSTGRES_PRISMA_URL (gitignored)
 .env.example              # Template (committed, no real values)
+.kiro/
+  hooks/
+    check-context-docs.kiro.hook   # Reminds agent to update AI_CONTEXT + README
+    check-test-coverage.kiro.hook  # Flags missing tests for new routes/components
 ```
 
 .prettierrc # Prettier config
@@ -230,8 +235,9 @@ Write tests before or alongside implementation. For API routes, validation logic
 
 - api/feedback.test.ts: feedback submission route tests (token validation, section completion, edge cases)
 - api/tokens.test.ts: token creation and listing route tests
-- ui/page.test.tsx: landing page + feedback form UI tests (render, disabled state, success, error, section indicators)
-- ui/accessibility.test.tsx: axe scan of feedback form
+- api/anonymous.test.ts: anonymous submission endpoint (all status codes: 200, 400, 403, 409, 410)
+- ui/page.test.tsx: landing page + feedback form UI tests (render, collapsed state, expand, submit, error, section indicators)
+- ui/accessibility.test.tsx: axe scans of landing page AND feedback form
 - security/headers.test.ts: security header config
 - security/middleware.test.ts: admin key protection
 

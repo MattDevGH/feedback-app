@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Check test coverage gaps",
+  "description": "After writing or modifying source files, checks that corresponding tests exist, especially for accessibility (axe scans on new pages/components) and security (new API routes have protection tests).",
+  "version": "1",
+  "when": {
+    "type": "postToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the file just written. If it's a new API route, verify there are corresponding tests for all status codes. If it's a new page or UI component, verify there's an axe accessibility scan for it. If it's a security-related change, verify the proxy/middleware tests cover it. Flag any gaps."
+  }
+}

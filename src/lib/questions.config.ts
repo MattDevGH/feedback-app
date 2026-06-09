@@ -145,6 +145,8 @@ export const QUESTIONS: Question[] = [
     displayOrder: 13,
   },
   {
+    // Key is "suggestion-5" (not "suggestion-4") — earlier questions were removed but keys
+    // are stable identifiers in the DB and cannot be renumbered without a data migration.
     key: "suggestion-5",
     category: "suggestion",
     text: `What doesn't ${name} do that ${PROFILE.pronouns.subject} should start doing?`,

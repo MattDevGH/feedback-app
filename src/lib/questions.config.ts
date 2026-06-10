@@ -71,18 +71,10 @@ export const QUESTIONS: Question[] = [
   {
     key: "praise-5",
     category: "praise",
-    text: `What should ${name} continue doing?`,
-    placeholder: "e.g. the way they run standups, their approach to mentoring\u2026",
-    mandatory: false,
-    displayOrder: 5,
-  },
-  {
-    key: "praise-6",
-    category: "praise",
     text: `What does ${name} do that ${PROFILE.pronouns.subject} should keep doing?`,
     placeholder: "e.g. regular check-ins, thorough documentation\u2026",
     mandatory: false,
-    displayOrder: 6,
+    displayOrder: 5,
   },
 
   // Stop (criticism) — what to do less of or differently
@@ -92,7 +84,7 @@ export const QUESTIONS: Question[] = [
     text: `What does ${name} struggle with?`,
     placeholder: "e.g. tends to take on too much without delegating\u2026",
     mandatory: false,
-    displayOrder: 7,
+    displayOrder: 6,
   },
   {
     key: "criticism-2",
@@ -100,7 +92,7 @@ export const QUESTIONS: Question[] = [
     text: `Has there been a situation where ${name} could have handled things better?`,
     placeholder: "e.g. a specific instance where a different approach would have helped\u2026",
     mandatory: false,
-    displayOrder: 8,
+    displayOrder: 7,
   },
   {
     key: "criticism-3",
@@ -108,13 +100,21 @@ export const QUESTIONS: Question[] = [
     text: `What should ${name} stop doing or do less of?`,
     placeholder: "e.g. micromanaging, over-explaining, being too cautious\u2026",
     mandatory: false,
-    displayOrder: 9,
+    displayOrder: 8,
   },
   {
     key: "criticism-4",
     category: "criticism",
-    text: `What does ${name} do that ${PROFILE.pronouns.subject} should stop doing?`,
-    placeholder: "e.g. interrupting in meetings, sending late-night messages\u2026",
+    text: `What behaviours or habits hold ${name} back?`,
+    placeholder: "e.g. avoiding difficult conversations, being too perfectionist\u2026",
+    mandatory: false,
+    displayOrder: 9,
+  },
+  {
+    key: "criticism-5",
+    category: "criticism",
+    text: `If you could change one thing about working with ${name}, what would it be?`,
+    placeholder: "e.g. more timely responses, clearer expectations\u2026",
     mandatory: false,
     displayOrder: 10,
   },
@@ -145,14 +145,20 @@ export const QUESTIONS: Question[] = [
     displayOrder: 13,
   },
   {
-    // Key is "suggestion-5" (not "suggestion-4") — earlier questions were removed but keys
-    // are stable identifiers in the DB and cannot be renumbered without a data migration.
+    key: "suggestion-4",
+    category: "suggestion",
+    text: `What would make ${name} more effective in ${PROFILE.pronouns.possessive} role?`,
+    placeholder: "e.g. better tooling, more context from leadership, clearer priorities\u2026",
+    mandatory: false,
+    displayOrder: 14,
+  },
+  {
     key: "suggestion-5",
     category: "suggestion",
     text: `What doesn't ${name} do that ${PROFILE.pronouns.subject} should start doing?`,
     placeholder: "e.g. proactively sharing updates, mentoring others\u2026",
     mandatory: false,
-    displayOrder: 14,
+    displayOrder: 15,
   },
 
   // General — uncategorised, not part of section completion
@@ -163,7 +169,7 @@ export const QUESTIONS: Question[] = [
     placeholder:
       "Anything else you'd like to share \u2014 positive, constructive, or otherwise\u2026",
     mandatory: false,
-    displayOrder: 15,
+    displayOrder: 16,
   },
 ];
 

@@ -8,11 +8,12 @@ const requestSchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
+    .max(150, "Must be 150 characters or fewer")
     .refine((v) => v.trim().length > 0, { message: "Name must not be blank" }),
   message: z
     .string()
     .min(1, "Message is required")
-    .max(100, "Message must be 100 characters or fewer"),
+    .max(150, "Message must be 150 characters or fewer"),
 });
 
 // POST /api/tokens/request — public, creates a token with status "requested"

@@ -49,8 +49,8 @@ describe("POST /api/tokens/request", () => {
     expect(res.status).toBe(400);
   });
 
-  it("returns 400 when message exceeds 100 characters", async () => {
-    const res = await POST(makeRequest({ name: "Alice", message: "a".repeat(101) }));
+  it("returns 400 when message exceeds 150 characters", async () => {
+    const res = await POST(makeRequest({ name: "Alice", message: "a".repeat(151) }));
     expect(res.status).toBe(400);
   });
 

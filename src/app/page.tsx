@@ -6,7 +6,6 @@ import { PROFILE } from "@/lib/profile.config";
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function LandingPage() {
-  const [name, setName] = useState("");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [feedbackUrl, setFeedbackUrl] = useState("");
@@ -21,7 +20,7 @@ export default function LandingPage() {
       const res = await fetch("/api/tokens/request", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), message: message.trim() }),
+        body: JSON.stringify({ name: message.trim(), message: message.trim() }),
       });
 
       if (!res.ok) {
@@ -67,47 +66,37 @@ export default function LandingPage() {
           </div>
           <h1 className="text-xl font-semibold text-gray-800 mb-1">Feedback for {PROFILE.name}</h1>
           <p className="text-sm text-gray-500">
-            If you&apos;d like to give feedback, let us know who you are and why. Your request will
-            be reviewed before you can proceed.
+            Want to give feedback? Tell us who you are and why. Your request will be reviewed before
+            you can proceed.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="mb-4">
             <label
-              htmlFor="requester-name"
+              htmlFor="request-message"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Your name or identifier
+              Who are you and why would you like to give feedback?
             </label>
-            <input
-              id="requester-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. your name, or 'Project X colleague'"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-
-          <div className="mb-4">
-            <label
-              htmlFor="requester-message"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Brief message
-            </label>
-            <input
-              id="requester-message"
-              type="text"
+            <textarea
+              id="request-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              maxLength={100}
-              placeholder="e.g. 'We worked together on Project X'"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              maxLength={150}
+              rows={3}
+              placeholder={
+                "e.g. 'Alice from the Platform team \u2014 we worked together on the migration project'"
+              }
+              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
             />
-            <p className="text-xs text-gray-400 mt-1">{message.length}/100</p>
+            <p className="text-xs text-gray-400 mt-1">{message.length}/150</p>
           </div>
+
+          <p className="text-xs text-gray-400 mb-4">
+            Even if you include your name here, you&apos;ll still have the option to submit your
+            feedback anonymously later.
+          </p>
 
           {status === "error" && (
             <p role="alert" className="text-sm text-red-600 mb-4">
@@ -117,7 +106,7 @@ export default function LandingPage() {
 
           <button
             type="submit"
-            disabled={status === "submitting" || !name.trim() || !message.trim()}
+            disabled={status === "submitting" || message.trim().length === 0}
             className="w-full bg-indigo-600 text-white text-sm font-medium py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {status === "submitting" ? "Submitting\u2026" : "Request to give feedback"}

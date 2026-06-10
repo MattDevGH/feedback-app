@@ -22,8 +22,7 @@ async function fillOncePerSection(user: ReturnType<typeof userEvent.setup>) {
 describe("Landing page", () => {
   it("shows the request form", () => {
     render(<LandingPage />);
-    expect(screen.getByLabelText(/your name or identifier/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/brief message/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/who are you and why/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /request to give feedback/i })).toBeInTheDocument();
   });
 });

@@ -46,7 +46,7 @@ export default function AnonymousConfirmView({ answers, token, onBack, onDone }:
           <p className="text-sm text-amber-800 mb-2">
             This is <strong>indirect</strong> rather than truly anonymous &mdash;{" "}
             {PROFILE.lineManager.firstName} will see the email address you use to send the feedback,
-            but {PROFILE.name} won&apos;t know who submitted it.
+            but {PROFILE.name + " "}won&apos;t know who submitted it.
           </p>
           <p className="text-xs text-amber-700">
             &#9888;&#65039; Your responses will not be saved in the app. Once you confirm below, you

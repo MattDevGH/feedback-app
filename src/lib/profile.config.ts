@@ -11,6 +11,6 @@ export const PROFILE = {
   lineManager: {
     firstName: "Jan",
     fullName: "Jan Krishnalingham",
-    email: "linemanager@example.com", // Replace with actual email when ready
+    email: "Jan.Kirishnalingham@transformuk.com", // Replace with actual email when ready
   },
 } as const;

@@ -165,7 +165,7 @@ export const QUESTIONS: Question[] = [
   {
     key: "general-1",
     category: "general",
-    text: `Any other comments?`,
+    text: `Any other comments?  Please also use this question to provide any feedback about this feedback tool.`,
     placeholder:
       "Anything else you'd like to share \u2014 positive, constructive, or otherwise\u2026",
     mandatory: false,

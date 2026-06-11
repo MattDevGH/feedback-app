@@ -148,7 +148,7 @@ function buildMailtoUrl(summary: string): string {
   const subject = `Anonymous feedback for ${PROFILE.name}`;
   const contentFits = summary.length <= MAILTO_SAFE_LENGTH;
   const body = contentFits
-    ? `Hi ${PROFILE.lineManager.firstName},\n\nI am submitting anonymous feedback for ${PROFILE.name} via the feedback app.\n\nPlease share this feedback with ${PROFILE.name} without revealing my identity.\n\n${summary}\nThank you.`
+    ? `Hi ${PROFILE.lineManager.firstName},\n\nI am submitting anonymous feedback for ${PROFILE.name} via the feedback app.\n\n${summary}\n\nPlease share this feedback with ${PROFILE.name} without revealing my identity.\n\nThank you.`
     : `Hi ${PROFILE.lineManager.firstName},\n\nI am submitting anonymous feedback for ${PROFILE.name} via the feedback app.\n\n[PASTE FEEDBACK HERE]\n\nPlease share this with ${PROFILE.name} without revealing my identity.\n\nThank you.`;
 
   return `mailto:${PROFILE.lineManager.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;

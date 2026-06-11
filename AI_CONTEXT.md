@@ -50,6 +50,7 @@ Code should read like well-written prose (Feathers). Follow Clean Code (Robert C
 | Testing    | Vitest + RTL + msw + jest-axe | See Testing section                                                                                                                                                                                                  |
 | Formatting | Prettier                      | Enforced via pre-commit hook (Husky + lint-staged). `npm run format` to format manually.                                                                                                                             |
 | CI         | GitHub Actions                | .github/workflows/ci.yml                                                                                                                                                                                             |
+| Analytics  | Vercel Analytics              | `<Analytics />` in root layout — page views and web vitals in production                                                                                                                                             |
 
 ---
 

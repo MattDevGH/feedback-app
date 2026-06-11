@@ -55,8 +55,9 @@ export const QUESTIONS: Question[] = [
   {
     key: "praise-3",
     category: "praise",
-    text: `What is ${name} great at?`,
-    placeholder: "e.g. running meetings, unblocking others, code review\u2026",
+    text: `What have you enjoyed about working with ${name}?`,
+    placeholder:
+      "e.g. collaborative problem-solving, always makes time to help, brings energy to the team\u2026",
     mandatory: false,
     displayOrder: 3,
   },
